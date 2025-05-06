@@ -1,7 +1,7 @@
 // frontend/cognitive-training-frontend/src/pages/register.tsx
+import Navbar from '../components/Navbar';
 import { useState } from 'react';
 import { useRouter } from 'next/router';
-import Navbar from '../components/Navbar';
 import { useAppContext } from '../context/AppContext';
 
 export default function Register() {
@@ -32,18 +32,20 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <Navbar />
-      <div className="container mx-auto p-8 flex flex-col items-center justify-center">
-        <h2 className="text-2xl font-bold mb-4">Registrarse</h2>
-        {error && <p className="text-red-500 mb-2">{error}</p>}
+    <div className="min-h-screen bg-purple-600 flex flex-col font-sans">
+      <header>
+        <Navbar />
+      </header>
+      <main className="flex-grow flex flex-col items-center justify-center text-center">
+        <h2 className="text-white text-5xl font-bold mb-4">Registrarse</h2>
+        {error && <p className="text-red-300 mb-4">{error}</p>}
         <form onSubmit={handleSubmit} className="w-full max-w-md">
           <input
             type="text"
             placeholder="Usuario"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            className="w-full border p-2 mb-4 rounded"
+            className="w-full border border-purple-300 p-3 mb-4 rounded focus:outline-none focus:ring-2 focus:ring-purple-400"
             required
           />
           <input
@@ -51,14 +53,22 @@ export default function Register() {
             placeholder="Contraseña"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full border p-2 mb-4 rounded"
+            className="w-full border border-purple-300 p-3 mb-4 rounded focus:outline-none focus:ring-2 focus:ring-purple-400"
             required
           />
-          <button type="submit" className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700 transition">
-            Registrarse
+          <button
+            type="submit"
+            className="w-full bg-white text-purple-600 font-bold text-xl py-3 px-8 rounded-full transition transform hover:scale-105 duration-300 hover:bg-gray-200"
+          >
+            REGISTRARSE
           </button>
         </form>
-      </div>
+      </main>
+      <footer className="p-4 text-center">
+        <p className="text-white text-sm">
+          © {new Date().getFullYear()} Cognitive Training App. All rights reserved.
+        </p>
+      </footer>
     </div>
   );
 }
