@@ -1,16 +1,23 @@
-// src/pages/index.tsx
+// frontend/cognitive-training-frontend/src/pages/index.tsx
 import Navbar from '../components/Navbar';
 
 export default function Home() {
   return (
-    <div>
-      <Navbar />
-      <div className="container mx-auto p-8">
-        <h1 className="text-3xl font-bold">Bienvenido a la Plataforma de Entrenamiento</h1>
-        <p className="mt-4">
-          Aquí podrás entrenar tu mente y mejorar tus habilidades cognitivas. Regístrate o inicia sesión para ver tu progreso, puntaje y ruta de entrenamiento personalizada.
+    <div className="min-h-screen bg-purple-600 flex flex-col">
+      <header>
+        <Navbar />
+      </header>
+      <main className="flex-grow flex flex-col items-center justify-center text-center">
+        <h1 className="text-white text-5xl font-bold mb-4">Bienvenido a Cognitive Training</h1>
+        <p className="text-white text-xl mb-6">
+          Entrena tu mente y mejora tus habilidades cognitivas.
         </p>
-      </div>
+      </main>
+      <footer className="p-4 text-center">
+        <p className="text-white text-sm">
+          © {new Date().getFullYear()} Cognitive Training App. All rights reserved.
+        </p>
+      </footer>
     </div>
   );
 }
