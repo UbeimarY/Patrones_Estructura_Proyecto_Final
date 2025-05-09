@@ -1,7 +1,12 @@
-// src/context/AppContext.tsx
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
-interface User { /* definición de usuario */ }
+// Define la interfaz de usuario con las propiedades necesarias
+export interface User {
+  id: number;
+  username: string;
+  score: number;
+  trainingRoute: string;
+}
 
 interface AppContextProps {
   user: User | null;
@@ -11,13 +16,11 @@ interface AppContextProps {
 
 const AppContext = createContext<AppContextProps | undefined>(undefined);
 
-// El proveedor actúa como sujeto, notificando a sus consumidores cuando cambia el estado.
 export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
 
   const logout = () => {
     setUser(null);
-    // Aquí también se podrían cerrar tokens, etc.
   };
 
   return (

@@ -24,11 +24,11 @@ public class MyLinkedList<T> {
         if (head == null) {
             head = newNode;
         } else {
-            Node<T> cur = head;
-            while (cur.next != null) {
-                cur = cur.next;
+            Node<T> curr = head;
+            while (curr.next != null) {
+                curr = curr.next;
             }
-            cur.next = newNode;
+            curr.next = newNode;
         }
         size++;
     }

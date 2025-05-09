@@ -13,6 +13,7 @@ public class BinarySearchTreeUsers {
         Node(AppUser user) { this.user = user; }
     }
 
+    // Inserta un usuario en el árbol basado en su puntaje.
     public void insert(AppUser user) {
         root = insertRec(root, user);
     }
@@ -21,7 +22,8 @@ public class BinarySearchTreeUsers {
         if (node == null) {
             return new Node(user);
         }
-        // Inserta según puntaje: menor a la izquierda, mayor a la derecha
+        // Se coloca el usuario a la izquierda si su puntaje es menor,
+        // de lo contrario, a la derecha.
         if (user.getScore() < node.user.getScore()) {
             node.left = insertRec(node.left, user);
         } else {
@@ -30,7 +32,7 @@ public class BinarySearchTreeUsers {
         return node;
     }
 
-    // Recorrido in-order para obtener usuarios ordenados por puntaje
+    // Realiza un recorrido in-order y devuelve la lista de usuarios ordenados por puntaje.
     public List<AppUser> inOrder() {
         List<AppUser> result = new ArrayList<>();
         inOrderRec(root, result);

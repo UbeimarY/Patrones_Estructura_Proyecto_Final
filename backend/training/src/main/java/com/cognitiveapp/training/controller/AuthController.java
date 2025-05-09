@@ -1,7 +1,8 @@
+// backend/training/src/main/java/com/cognitiveapp/training/controller/AuthController.java
 package com.cognitiveapp.training.controller;
 
 import com.cognitiveapp.training.model.AppUser;
-import com.cognitiveapp.training.service.UserService;
+import com.cognitiveapp.training.service.IUserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,9 +11,9 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    private final UserService userService;
+    private final IUserService userService;
 
-    public AuthController(UserService userService) {
+    public AuthController(IUserService userService) {
         this.userService = userService;
     }
 

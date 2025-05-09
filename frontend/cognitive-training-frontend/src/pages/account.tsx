@@ -1,4 +1,3 @@
-// src/pages/account.tsx
 import { useAppContext } from '../context/AppContext';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
@@ -17,16 +16,32 @@ export default function Account() {
   if (!user) return null;
 
   return (
-    <div>
-      <Navbar />
-      <div className="container mx-auto p-8">
-        <h2 className="text-2xl font-bold">Mi Cuenta</h2>
-        <p className="mt-4">Usuario: {user.username}</p>
-        <p>Puntaje: {user.score} puntos</p>
-        <p>
-          Ruta de entrenamiento: {user.trainingRoute ? user.trainingRoute : "Aún no definido"}
-        </p>
-      </div>
+    <div className="min-h-screen bg-purple-600 flex flex-col font-sans">
+      <header>
+        <Navbar />
+      </header>
+      <main className="flex-grow flex items-center justify-center px-4 py-8">
+        <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md">
+          <h2 className="text-center text-3xl font-bold text-purple-600 mb-6">Mi Cuenta</h2>
+          <div className="mb-4">
+            <span className="block text-gray-700 font-semibold">Usuario:</span>
+            <p className="text-xl text-gray-900">{user.username}</p>
+          </div>
+          <div className="mb-4">
+            <span className="block text-gray-700 font-semibold">Puntaje:</span>
+            <p className="text-xl text-gray-900">{user.score} puntos</p>
+          </div>
+          <div>
+            <span className="block text-gray-700 font-semibold">Ruta de entrenamiento:</span>
+            <p className="text-xl text-gray-900">
+              {user.trainingRoute ? user.trainingRoute : "Aún no definido"}
+            </p>
+          </div>
+        </div>
+      </main>
+      <footer className="py-4 text-center">
+        <p className="text-white text-sm">© {new Date().getFullYear()} Cognitive Training App. All rights reserved.</p>
+      </footer>
     </div>
   );
 }

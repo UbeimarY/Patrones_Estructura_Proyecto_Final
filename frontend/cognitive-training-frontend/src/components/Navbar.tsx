@@ -1,4 +1,3 @@
-// frontend/cognitive-training-frontend/src/components/Navbar.tsx
 import Link from 'next/link';
 import { useAppContext } from '../context/AppContext';
 
@@ -8,27 +7,26 @@ export default function Navbar() {
   return (
     <header className="flex justify-between items-center p-4 bg-purple-600">
       <div className="flex items-center gap-2">
-        {/* Asegúrate de tener un logo en public/logo.png */}
-        <img src="/logo.png" alt="Logo" className="h-10 w-auto" />
-        <span className="text-white text-2xl font-bold">Cognitive Training</span>
-      </div>
-      <div className="flex gap-4">
-        <Link href="/" className="text-white font-semibold hover:underline">
-          Inicio
+        <Link href="/">
+          <div className="flex items-center gap-2 cursor-pointer">
+            <img src="/logo.png" alt="Logo" className="h-10 w-auto" />
+            <span className="text-white text-2xl font-bold">Cognitive Training</span>
+          </div>
         </Link>
-        {!user ? (
+      </div>
+      <div className="flex items-center gap-4">
+        <Link href="/">
+          <span className="text-white font-semibold hover:underline">Inicio</span>
+        </Link>
+        {user ? (
           <>
-            <Link href="/login" className="text-white font-semibold hover:underline">
-              Iniciar Sesión
-            </Link>
-            <Link href="/register" className="text-white font-semibold hover:underline">
-              Registrarse
-            </Link>
-          </>
-        ) : (
-          <>
-            <Link href="/account" className="text-white font-semibold hover:underline">
-              Mi Cuenta
+            {/* La imagen de perfil (por defecto /profile.png, colócala en public/) actúa como enlace a la cuenta */}
+            <Link href="/account">
+              <img
+                src="/profile.png"
+                alt="Perfil"
+                className="h-10 w-10 rounded-full border-2 border-white cursor-pointer"
+              />
             </Link>
             <button
               onClick={logout}
@@ -36,6 +34,15 @@ export default function Navbar() {
             >
               Cerrar Sesión
             </button>
+          </>
+        ) : (
+          <>
+            <Link href="/login">
+              <span className="text-white font-semibold hover:underline">Iniciar Sesión</span>
+            </Link>
+            <Link href="/register">
+              <span className="text-white font-semibold hover:underline">Registrarse</span>
+            </Link>
           </>
         )}
       </div>

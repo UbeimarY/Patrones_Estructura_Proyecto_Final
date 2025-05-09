@@ -30,7 +30,7 @@ public class MyDynamicArray<T> {
         if (index < 0 || index >= size) throw new IndexOutOfBoundsException();
         T removed = data[index];
         for (int i = index; i < size - 1; i++) {
-            data[i] = data[i+1];
+            data[i] = data[i + 1];
         }
         data[--size] = null;
         return removed;

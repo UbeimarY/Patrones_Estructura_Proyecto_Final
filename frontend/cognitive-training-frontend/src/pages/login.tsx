@@ -1,4 +1,3 @@
-// frontend/cognitive-training-frontend/src/pages/login.tsx
 import Navbar from '../components/Navbar';
 import { useState } from 'react';
 import { useRouter } from 'next/router';
@@ -22,7 +21,8 @@ export default function Login() {
       if (res.ok) {
         const user = await res.json();
         setUser(user);
-        router.push('/account');
+        // Redirige al Home, donde el Navbar mostrará el avatar de perfil
+        router.push('/');
       } else {
         setError('Credenciales inválidas');
       }
@@ -33,12 +33,10 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-purple-600 flex flex-col font-sans">
-      <header>
-        <Navbar />
-      </header>
-      <main className="flex-grow flex flex-col items-center justify-center text-center">
-        <h2 className="text-white text-5xl font-bold mb-4">Iniciar Sesión</h2>
-        {error && <p className="text-red-300 mb-4">{error}</p>}
+      <Navbar />
+      <div className="container mx-auto p-8 flex flex-col items-center justify-center">
+        <h2 className="text-white text-3xl font-extrabold mb-4">Iniciar Sesión</h2>
+        {error && <p className="text-red-300 mb-2">{error}</p>}
         <form onSubmit={handleSubmit} className="w-full max-w-md">
           <input
             type="text"
@@ -63,12 +61,7 @@ export default function Login() {
             INICIAR SESIÓN
           </button>
         </form>
-      </main>
-      <footer className="p-4 text-center">
-        <p className="text-white text-sm">
-          © {new Date().getFullYear()} Cognitive Training App. All rights reserved.
-        </p>
-      </footer>
+      </div>
     </div>
   );
 }
