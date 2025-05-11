@@ -1,6 +1,6 @@
+// frontend/cognitive-training-frontend/src/context/AppContext.tsx
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
-// Define la interfaz de usuario con las propiedades necesarias
 export interface User {
   id: number;
   username: string;
