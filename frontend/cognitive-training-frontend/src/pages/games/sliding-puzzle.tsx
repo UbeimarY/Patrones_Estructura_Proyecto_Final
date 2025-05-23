@@ -1,22 +1,35 @@
-// src/pages/games/sliding-puzzle.tsx
-import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
-import { useAppContext } from '../../context/AppContext';
+import { useState } from "react";
 
 const gridSize = 3;
 
-export default function SlidingPuzzle() {
-  const { user } = useAppContext();
-  const router = useRouter();
+// Función para generar un rompecabezas solucionable aleatorio
+const generateSolvablePuzzle = () => {
+  const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 0];
+  let inversions = 0;
 
-  // Redirigir al login si el usuario no está autenticado.
-  useEffect(() => {
-    if (!user) {
-      router.push('/login');
+  do {
+    // Mezcla Fisher-Yates
+    for (let i = numbers.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
     }
-  }, [user, router]);
+    
+    // Calcular inversiones
+    inversions = 0;
+    for (let i = 0; i < numbers.length; i++) {
+      for (let j = i + 1; j < numbers.length; j++) {
+        if (numbers[i] > numbers[j] && numbers[i] !== 0 && numbers[j] !== 0) {
+          inversions++;
+        }
+      }
+    }
+  } while (inversions % 2 !== 0); // Solo permutaciones pares son solucionables
 
-  const [board, setBoard] = useState<number[]>([1, 2, 3, 4, 5, 6, 7, 8, 0]);
+  return numbers;
+};
+
+export default function SlidingPuzzle() {
+  const [board, setBoard] = useState<number[]>(() => generateSolvablePuzzle());
 
   const getPosition = (index: number) => ({
     row: Math.floor(index / gridSize),
@@ -64,11 +77,13 @@ export default function SlidingPuzzle() {
       <header className="p-4">
         <h1 className="text-white text-3xl font-bold text-center">Rompecabezas Deslizante</h1>
       </header>
+      
       <main className="flex-grow flex items-center justify-center">
         <div className="grid grid-cols-3 gap-2">
           {board.map((tile, idx) => renderTile(tile, idx))}
         </div>
       </main>
+
       <footer className="p-4 text-center">
         <p className="text-white text-sm">
           © {new Date().getFullYear()} Cognitive Training App. All rights reserved.
