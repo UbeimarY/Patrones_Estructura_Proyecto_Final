@@ -1,4 +1,4 @@
-// frontend/cognitive-training-frontend/src/pages/login.tsx
+// src/pages/login.tsx
 import Navbar from '../components/Navbar';
 import { useState } from 'react';
 import { useRouter } from 'next/router';
@@ -22,7 +22,6 @@ export default function Login() {
       if (res.ok) {
         const user = await res.json();
         setUser(user);
-        // Redirige al Home
         router.push('/');
       } else {
         setError('Credenciales inválidas');

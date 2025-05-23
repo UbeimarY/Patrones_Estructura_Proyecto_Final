@@ -1,5 +1,9 @@
 package com.cognitiveapp.training.datastructures;
 
+/**
+ * Implementación propia de una lista enlazada.
+ * Se utiliza para almacenar el historial de jugadas.
+ */
 public class MyLinkedList<T> {
     private Node<T> head;
     private int size;
@@ -19,6 +23,7 @@ public class MyLinkedList<T> {
         return size;
     }
 
+    // Agrega un elemento al final
     public void add(T value) {
         Node<T> newNode = new Node<>(value);
         if (head == null) {
@@ -33,6 +38,17 @@ public class MyLinkedList<T> {
         size++;
     }
 
+    // Retorna el elemento en la posición especificada
+    public T get(int index) {
+        if (index < 0 || index >= size) throw new IndexOutOfBoundsException();
+        Node<T> current = head;
+        for (int i = 0; i < index; i++) {
+            current = current.next;
+        }
+        return current.value;
+    }
+
+    // Elimina la primera ocurrencia del valor y retorna true si se elimina
     public boolean remove(T value) {
         if (head == null) return false;
         if (head.value.equals(value)) {

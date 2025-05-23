@@ -1,4 +1,4 @@
-// frontend/cognitive-training-frontend/src/pages/account.tsx
+// src/pages/account.tsx
 import { useAppContext } from '../context/AppContext';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';

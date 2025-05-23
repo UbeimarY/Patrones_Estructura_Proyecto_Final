@@ -1,4 +1,4 @@
-// frontend/cognitive-training-frontend/src/context/AppContext.tsx
+// src/context/AppContext.tsx
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 export interface User {

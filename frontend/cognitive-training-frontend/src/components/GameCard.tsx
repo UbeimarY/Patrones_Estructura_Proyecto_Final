@@ -17,7 +17,8 @@ export interface GameCardProps {
 
 export default function GameCard({ game }: GameCardProps) {
   return (
-    <div className="card-glass overflow-hidden group animate-fade-in cursor-default">
+    <div className="bg-white/20 backdrop-blur-sm rounded-xl border border-white/20 shadow-lg group overflow-hidden transition transform hover:scale-105">
+      {/* Sección de imagen con overlay */}
       <div className="relative h-48 overflow-hidden">
         <img
           src={game.image}
@@ -31,18 +32,22 @@ export default function GameCard({ game }: GameCardProps) {
           </span>
         </div>
       </div>
+      {/* Sección de detalles debajo de la imagen */}
       <div className="p-6">
         <h3 className="mb-2 text-xl font-semibold text-white">{game.title}</h3>
-        <p className="mb-4 text-sm text-gray-300">{game.description}</p>
+        <p className="mb-4 text-sm text-white">{game.description}</p>
         <div className="flex flex-wrap gap-2 mb-4">
           {game.technologies.map((tech, i) => (
-            <span key={i} className="rounded-full bg-white/10 px-2 py-1 text-xs text-white">
+            <span
+              key={i}
+              className="rounded-full bg-white/10 px-2 py-1 text-xs text-white"
+            >
               {tech}
             </span>
           ))}
         </div>
         <Link href={game.link} legacyBehavior>
-          <a className="inline-block text-sm font-medium text-purple-400 hover:text-purple-300">
+          <a className="inline-block text-sm font-medium text-white hover:underline">
             Jugar →
           </a>
         </Link>

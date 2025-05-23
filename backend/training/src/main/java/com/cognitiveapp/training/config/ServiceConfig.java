@@ -7,6 +7,10 @@ import com.cognitiveapp.training.service.UserServiceProxy;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+  Configuración de beans: se definen los beans para el servicio de usuario.
+  Se utiliza Proxy para agregar funcionalidades (logging) 
+ */
 @Configuration
 public class ServiceConfig {
 

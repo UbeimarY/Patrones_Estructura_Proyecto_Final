@@ -1,4 +1,4 @@
-// frontend/cognitive-training-frontend/src/pages/register.tsx
+// src/pages/register.tsx
 import Navbar from '../components/Navbar';
 import { useState } from 'react';
 import { useRouter } from 'next/router';

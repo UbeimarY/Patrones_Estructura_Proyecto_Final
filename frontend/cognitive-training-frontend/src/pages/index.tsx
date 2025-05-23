@@ -1,3 +1,4 @@
+// src/pages/index.tsx
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -6,7 +7,6 @@ import { useAppContext } from '../context/AppContext';
 import GameCard, { Game } from '../components/GameCard';
 
 const games: Game[] = [
-  // Juegos originales
   {
     id: 'sliding-puzzle',
     title: 'Rompecabezas Deslizante',
@@ -37,12 +37,10 @@ const games: Game[] = [
     technologies: ['Velocidad', 'Atención', 'Cognitivo'],
     link: '/games/reaction-time',
   },
-  // Tres cartas adicionales
   {
     id: 'chess',
     title: 'Ajedrez',
-    description:
-      'Desafía tu estrategia en partidas de ajedrez.',
+    description: 'Desafía tu estrategia en partidas de ajedrez.',
     image: '/games/chess-banner.jpg',
     category: 'Puzzle',
     technologies: ['Estrategia', 'Planificación'],
@@ -51,8 +49,7 @@ const games: Game[] = [
   {
     id: 'trivia',
     title: 'Trivia',
-    description:
-      'Pon a prueba tus conocimientos en preguntas desafiantes.',
+    description: 'Pon a prueba tus conocimientos en preguntas desafiantes.',
     image: '/games/trivia-banner.jpg',
     category: 'Memoria',
     technologies: ['Conocimiento', 'Rapidez'],
@@ -61,8 +58,7 @@ const games: Game[] = [
   {
     id: 'card-game',
     title: 'Juego de Cartas',
-    description:
-      'Mejora tu agilidad mental con este divertido juego de cartas.',
+    description: 'Mejora tu agilidad mental con este divertido juego de cartas.',
     image: '/games/card-game-banner.jpg',
     category: 'Reacción',
     technologies: ['Rapidez', 'Atención'],
@@ -71,7 +67,6 @@ const games: Game[] = [
 ];
 
 export default function HomePage() {
-  // Filtro de categorías
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const filteredGames =
     selectedCategory && selectedCategory !== 'All'
@@ -82,7 +77,6 @@ export default function HomePage() {
   const { user } = useAppContext();
   const router = useRouter();
 
-  // Función para manejar el clic en "Jugar →"
   const handlePlay = (e: React.MouseEvent<HTMLAnchorElement>, link: string) => {
     if (!user) {
       e.preventDefault();
@@ -95,7 +89,6 @@ export default function HomePage() {
       <Navbar />
 
       <main className="flex-grow flex flex-col items-center justify-center text-center px-4">
-        {/* Mensaje de Bienvenida */}
         <h1 className="text-white text-5xl font-bold mb-4">
           Bienvenido a Cognitive Training
         </h1>
@@ -103,11 +96,8 @@ export default function HomePage() {
           Entrena tu mente y mejora tus habilidades cognitivas.
         </p>
 
-        {/* Sección de Cards de "Mis Juegos" */}
         <section className="w-full max-w-6xl mt-8">
           <h2 className="text-white text-3xl font-bold mb-4">Mis Juegos</h2>
-
-          {/* Filtro de Categorías */}
           <div className="flex flex-wrap gap-4 mb-8">
             {categories.map((cat) => (
               <button
@@ -123,8 +113,6 @@ export default function HomePage() {
               </button>
             ))}
           </div>
-
-          {/* Grid de Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredGames.map((game) => (
               <GameCard key={game.id} game={game} />

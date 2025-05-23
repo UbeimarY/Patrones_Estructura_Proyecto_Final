@@ -1,3 +1,4 @@
+// src/components/Navbar.tsx
 import Link from 'next/link';
 import { useAppContext } from '../context/AppContext';
 
@@ -20,7 +21,7 @@ export default function Navbar() {
         </Link>
         {user ? (
           <>
-            {/* La imagen de perfil (por defecto /profile.png, colócala en public/) actúa como enlace a la cuenta */}
+            {/* La imagen de perfil actúa como enlace a la cuenta */}
             <Link href="/account">
               <img
                 src="/profile.png"
@@ -28,12 +29,13 @@ export default function Navbar() {
                 className="h-10 w-10 rounded-full border-2 border-white cursor-pointer"
               />
             </Link>
-            <button
+            {/* Logout ahora se muestra como simple texto con hover underline */}
+            <span
               onClick={logout}
-              className="border border-white text-white font-semibold px-3 py-1 rounded hover:bg-white hover:text-purple-600"
+              className="cursor-pointer text-white font-semibold hover:underline transition"
             >
               Cerrar Sesión
-            </button>
+            </span>
           </>
         ) : (
           <>

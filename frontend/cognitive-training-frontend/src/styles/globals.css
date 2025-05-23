@@ -1,9 +1,9 @@
 /* src/styles/globals.css */
 
-/* Importa Tailwind CSS para disponer de todas sus utilidades */
+/* Importa Tailwind CSS para tener acceso a todas sus utilidades */
 @import "tailwindcss";
 
-/* Configuración CSS‑first: define tus tokens de diseño con @theme */
+/* Configuración CSS‑first: define tokens de diseño */
 @theme {
   --font-display: "Satoshi", sans-serif;
   --breakpoint-3xl: 1920px;

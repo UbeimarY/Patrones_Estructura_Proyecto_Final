@@ -1,13 +1,13 @@
 package com.cognitiveapp.training.service;
 
-import com.cognitiveapp.training.datastructures.BinarySearchTreeUsers;
 import com.cognitiveapp.training.model.AppUser;
 import com.cognitiveapp.training.repository.UserRepository;
+import org.springframework.stereotype.Service;
 
+@Service
 public class UserServiceImpl implements IUserService {
 
     private final UserRepository userRepository;
-    private BinarySearchTreeUsers rankingTree = new BinarySearchTreeUsers();
 
     public UserServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
@@ -15,9 +15,10 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public AppUser registerUser(AppUser user) {
-        AppUser newUser = userRepository.save(user);
-        rankingTree.insert(newUser);
-        return newUser;
+        if (userRepository.findByUsername(user.getUsername()) != null) {
+            return null;
+        }
+        return userRepository.save(user);
     }
 
     @Override

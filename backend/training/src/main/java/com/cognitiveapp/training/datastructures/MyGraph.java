@@ -16,7 +16,7 @@ public class MyGraph<T> {
         adjList.putIfAbsent(vertex, new ArrayList<>());
     }
 
-    // Para un grafo no dirigido, añade en ambas direcciones
+    // Para un grafo no dirigido, se añade la arista en ambas direcciones.
     public void addEdge(T source, T destination) {
         adjList.putIfAbsent(source, new ArrayList<>());
         adjList.putIfAbsent(destination, new ArrayList<>());

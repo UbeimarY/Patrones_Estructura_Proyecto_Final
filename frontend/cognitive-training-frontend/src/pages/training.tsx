@@ -1,4 +1,4 @@
-// frontend/cognitive-training-frontend/src/pages/training.tsx
+// src/pages/training.tsx
 import Link from 'next/link';
 import Navbar from '../components/Navbar';
 
@@ -11,7 +11,6 @@ export default function Training() {
           Ruta de Entrenamiento
         </h1>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Tarjeta para el juego de Rompecabezas Deslizante */}
           <Link href="/games/sliding-puzzle">
             <div className="bg-white rounded-lg shadow-xl p-6 cursor-pointer hover:shadow-2xl transition">
               <h2 className="text-purple-600 text-2xl font-bold mb-2">
@@ -22,7 +21,7 @@ export default function Training() {
               </p>
             </div>
           </Link>
-          {/* Aquí podrías agregar más tarjetas para otros juegos en el futuro */}
+          {/* Se pueden agregar más tarjetas para otros juegos */}
         </div>
       </main>
       <footer className="p-4 text-center text-white">
