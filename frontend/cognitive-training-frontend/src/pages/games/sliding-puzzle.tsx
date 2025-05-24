@@ -16,18 +16,21 @@ const generateSolvablePuzzle = () => {
       const j = Math.floor(Math.random() * (i + 1));
       [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
     }
-    
-    // Calcular el número de inversiones
+
+    // Calculo de inversiones, ignorando el 0
     inversions = 0;
     for (let i = 0; i < numbers.length; i++) {
       for (let j = i + 1; j < numbers.length; j++) {
-        // No contar los ceros
-        if (numbers[i] > numbers[j] && numbers[i] !== 0 && numbers[j] !== 0) {
+        if (
+          numbers[i] > numbers[j] &&
+          numbers[i] !== 0 &&
+          numbers[j] !== 0
+        ) {
           inversions++;
         }
       }
     }
-  } while (inversions % 2 !== 0); // Solo las permutaciones con inversions pares son solucionables
+  } while (inversions % 2 !== 0); // Solo permutaciones con inversions pares son solucionables
 
   return numbers;
 };
@@ -36,15 +39,29 @@ export default function SlidingPuzzle() {
   const { user } = useAppContext();
   const router = useRouter();
 
-  // Redirige al login si el usuario no está autenticado
+  // Redirige si el usuario no existe (por ejemplo, sesión no persistida)
   useEffect(() => {
     if (!user) {
       router.push("/login");
     }
   }, [user, router]);
 
-  // Estado inicial definido usando generateSolvablePuzzle
-  const [board, setBoard] = useState<number[]>(() => generateSolvablePuzzle());
+  // Inicializar el estado del tablero como vacío
+  // y generar puzzle nuevo en el cliente (useEffect)
+  const [board, setBoard] = useState<number[]>([]);
+
+  useEffect(() => {
+    setBoard(generateSolvablePuzzle());
+  }, []);
+
+  // Mientras el tablero no se haya generado, muestra Loading
+  if (board.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-purple-600 to-blue-700 font-sans">
+        <p className="text-white text-xl">Cargando...</p>
+      </div>
+    );
+  }
 
   const getPosition = (index: number) => ({
     row: Math.floor(index / gridSize),
