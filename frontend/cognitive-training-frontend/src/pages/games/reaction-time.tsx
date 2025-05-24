@@ -1,23 +1,25 @@
 // src/pages/games/reaction-time.tsx
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
-import { useAppContext } from '../../context/AppContext';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/router";
+import { useAppContext } from "../../context/AppContext";
+import Navbar from "../../components/Navbar";
+import BackButton from "../../components/BackButton";
 
 export default function ReactionTime() {
-  const { user } = useAppContext();
+  const { user, authLoaded } = useAppContext();
   const router = useRouter();
-
-  useEffect(() => {
-    if (!user) {
-      router.push('/login');
-    }
-  }, [user, router]);
 
   const [gameStarted, setGameStarted] = useState(false);
   const [message, setMessage] = useState("Pulsa 'Start' para comenzar.");
   const [startTime, setStartTime] = useState<number | null>(null);
   const [reactionTime, setReactionTime] = useState<number | null>(null);
   const [waiting, setWaiting] = useState(false);
+
+  useEffect(() => {
+    if (authLoaded && !user) router.push("/login");
+  }, [user, authLoaded, router]);
+
+  const isLoading = !authLoaded;
 
   const startGame = () => {
     setGameStarted(true);
@@ -46,8 +48,14 @@ export default function ReactionTime() {
     }
   };
 
-  return (
+  return isLoading ? (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-purple-600 to-blue-700 font-sans">
+      <p className="text-white text-xl">Cargando...</p>
+    </div>
+  ) : (
     <div className="min-h-screen bg-gradient-to-b from-purple-600 to-blue-700 flex flex-col font-sans" onClick={handleClick}>
+      <BackButton />
+      <Navbar />
       <header className="p-4">
         <h1 className="text-white text-3xl font-bold text-center">Tiempo de Reacción</h1>
       </header>
@@ -55,8 +63,8 @@ export default function ReactionTime() {
         <div className="bg-white/20 backdrop-blur-sm p-8 rounded-lg border border-white/20 shadow-lg text-center">
           <p className="text-white text-xl mb-4">{message}</p>
           {!gameStarted && (
-            <button 
-              onClick={startGame} 
+            <button
+              onClick={startGame}
               className="bg-white text-purple-600 font-bold py-2 px-4 rounded hover:bg-gray-200 transition"
             >
               Start
@@ -66,7 +74,9 @@ export default function ReactionTime() {
         </div>
       </main>
       <footer className="p-4 text-center">
-        <p className="text-white text-sm">© {new Date().getFullYear()} Cognitive Training App. All rights reserved.</p>
+        <p className="text-white text-sm">
+          © {new Date().getFullYear()} Cognitive Training App. All rights reserved.
+        </p>
       </footer>
     </div>
   );

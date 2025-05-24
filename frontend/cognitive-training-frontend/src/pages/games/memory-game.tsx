@@ -1,9 +1,10 @@
 // src/pages/games/memory-game.tsx
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
-import { useAppContext } from '../../context/AppContext';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/router";
+import { useAppContext } from "../../context/AppContext";
+import Navbar from "../../components/Navbar";
+import BackButton from "../../components/BackButton";
 
-// Genera un mazo de cartas con 8 pares y lo mezcla
 const generateBoard = () => {
   const pairs = [1, 2, 3, 4, 5, 6, 7, 8];
   const deck = [...pairs, ...pairs];
@@ -15,20 +16,18 @@ const generateBoard = () => {
 };
 
 export default function MemoryGame() {
-  const { user } = useAppContext();
+  const { user, authLoaded } = useAppContext();
   const router = useRouter();
-  
-  useEffect(() => {
-    if (!user) {
-      router.push('/login');
-    }
-  }, [user, router]);
-  
+
   const [board, setBoard] = useState<number[]>(generateBoard());
   const [revealed, setRevealed] = useState<boolean[]>(Array(board.length).fill(false));
   const [selectedIndices, setSelectedIndices] = useState<number[]>([]);
   const [matched, setMatched] = useState<boolean[]>(Array(board.length).fill(false));
-  
+
+  useEffect(() => {
+    if (authLoaded && !user) router.push("/login");
+  }, [user, authLoaded, router]);
+
   useEffect(() => {
     if (selectedIndices.length === 2) {
       const [first, second] = selectedIndices;
@@ -49,7 +48,9 @@ export default function MemoryGame() {
       }
     }
   }, [selectedIndices, board, matched, revealed]);
-  
+
+  const isLoading = !authLoaded;
+
   const handleCardClick = (index: number) => {
     if (revealed[index] || matched[index] || selectedIndices.length === 2) return;
     const newRevealed = [...revealed];
@@ -57,21 +58,27 @@ export default function MemoryGame() {
     setRevealed(newRevealed);
     setSelectedIndices([...selectedIndices, index]);
   };
-  
-  return (
+
+  return isLoading ? (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-purple-600 to-blue-700 font-sans">
+      <p className="text-white text-xl">Cargando...</p>
+    </div>
+  ) : (
     <div className="min-h-screen bg-gradient-to-b from-purple-600 to-blue-700 flex flex-col font-sans">
+      <BackButton />
+      <Navbar />
       <header className="p-4">
         <h1 className="text-white text-3xl font-bold text-center">Juego de Memoria</h1>
       </header>
       <main className="flex-grow flex items-center justify-center">
         <div className="grid grid-cols-4 gap-2">
           {board.map((value, idx) => (
-            <div 
+            <div
               key={idx}
               onClick={() => handleCardClick(idx)}
               className="w-20 h-20 flex items-center justify-center bg-purple-300 text-white text-2xl font-bold border border-gray-300 cursor-pointer hover:bg-purple-400 transition"
             >
-              {(revealed[idx] || matched[idx]) ? value : '?'}
+              {(revealed[idx] || matched[idx]) ? value : "?"}
             </div>
           ))}
         </div>

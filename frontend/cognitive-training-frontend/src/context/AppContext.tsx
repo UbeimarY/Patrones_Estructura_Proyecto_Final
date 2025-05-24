@@ -1,5 +1,5 @@
 // src/context/AppContext.tsx
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, useState, ReactNode } from "react";
 
 export interface User {
   id: number;
@@ -12,31 +12,33 @@ interface AppContextProps {
   user: User | null;
   setUser: (user: User | null) => void;
   logout: () => void;
+  authLoaded: boolean;
 }
 
 const AppContext = createContext<AppContextProps | undefined>(undefined);
 
 export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUserState] = useState<User | null>(null);
+  const [authLoaded, setAuthLoaded] = useState(false);
 
-  // Al montar, recupera el usuario de localStorage, si existe.
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
+    const storedUser = localStorage.getItem("user");
     if (storedUser) {
       try {
         setUserState(JSON.parse(storedUser));
-      } catch (err) {
-        console.error("Error parsing stored user", err);
+      } catch (error) {
+        console.error("Error parsing stored user", error);
       }
     }
+    setAuthLoaded(true);
   }, []);
 
   const setUser = (user: User | null) => {
     setUserState(user);
     if (user) {
-      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem("user", JSON.stringify(user));
     } else {
-      localStorage.removeItem('user');
+      localStorage.removeItem("user");
     }
   };
 
@@ -45,7 +47,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AppContext.Provider value={{ user, setUser, logout }}>
+    <AppContext.Provider value={{ user, setUser, logout, authLoaded }}>
       {children}
     </AppContext.Provider>
   );
@@ -54,7 +56,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 export const useAppContext = () => {
   const context = useContext(AppContext);
   if (!context) {
-    throw new Error('useAppContext must be used within an AppProvider');
+    throw new Error("useAppContext must be used within an AppProvider");
   }
   return context;
 };

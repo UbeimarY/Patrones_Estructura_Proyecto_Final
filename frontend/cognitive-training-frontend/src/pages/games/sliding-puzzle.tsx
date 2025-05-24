@@ -2,66 +2,47 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { useAppContext } from "../../context/AppContext";
+import Navbar from "../../components/Navbar";
+import BackButton from "../../components/BackButton";
 
 const gridSize = 3;
 
-// Función para generar un rompecabezas solucionable aleatorio
 const generateSolvablePuzzle = () => {
   const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 0];
   let inversions = 0;
-
   do {
-    // Mezcla Fisher-Yates
     for (let i = numbers.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
     }
-
-    // Calculo de inversiones, ignorando el 0
     inversions = 0;
     for (let i = 0; i < numbers.length; i++) {
       for (let j = i + 1; j < numbers.length; j++) {
-        if (
-          numbers[i] > numbers[j] &&
-          numbers[i] !== 0 &&
-          numbers[j] !== 0
-        ) {
+        if (numbers[i] > numbers[j] && numbers[i] !== 0 && numbers[j] !== 0) {
           inversions++;
         }
       }
     }
-  } while (inversions % 2 !== 0); // Solo permutaciones con inversions pares son solucionables
-
+  } while (inversions % 2 !== 0);
   return numbers;
 };
 
 export default function SlidingPuzzle() {
-  const { user } = useAppContext();
+  const { user, authLoaded } = useAppContext();
   const router = useRouter();
-
-  // Redirige si el usuario no existe (por ejemplo, sesión no persistida)
-  useEffect(() => {
-    if (!user) {
-      router.push("/login");
-    }
-  }, [user, router]);
-
-  // Inicializar el estado del tablero como vacío
-  // y generar puzzle nuevo en el cliente (useEffect)
   const [board, setBoard] = useState<number[]>([]);
 
   useEffect(() => {
     setBoard(generateSolvablePuzzle());
   }, []);
 
-  // Mientras el tablero no se haya generado, muestra Loading
-  if (board.length === 0) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-purple-600 to-blue-700 font-sans">
-        <p className="text-white text-xl">Cargando...</p>
-      </div>
-    );
-  }
+  useEffect(() => {
+    if (authLoaded && !user) {
+      router.push("/login");
+    }
+  }, [user, authLoaded, router]);
+
+  const isLoading = !authLoaded || board.length === 0;
 
   const getPosition = (index: number) => ({
     row: Math.floor(index / gridSize),
@@ -72,7 +53,6 @@ export default function SlidingPuzzle() {
     const blankIndex = board.indexOf(0);
     const { row: targetRow, col: targetCol } = getPosition(index);
     const { row: blankRow, col: blankCol } = getPosition(blankIndex);
-
     if (
       (targetRow === blankRow && Math.abs(targetCol - blankCol) === 1) ||
       (targetCol === blankCol && Math.abs(targetRow - blankRow) === 1)
@@ -83,33 +63,29 @@ export default function SlidingPuzzle() {
     }
   };
 
-  const renderTile = (tile: number, idx: number) => {
-    if (tile === 0) {
-      return (
-        <div
-          key={idx}
-          className="flex items-center justify-center w-24 h-24 bg-gray-200 border border-gray-300"
-        />
-      );
-    } else {
-      return (
-        <div
-          key={idx}
-          onClick={() => handleTileClick(idx)}
-          className="flex items-center justify-center w-24 h-24 bg-purple-300 text-white text-2xl font-bold border border-gray-300 cursor-pointer hover:bg-purple-400 transition"
-        >
-          {tile}
-        </div>
-      );
-    }
-  };
+  const renderTile = (tile: number, idx: number) =>
+    tile === 0 ? (
+      <div key={idx} className="flex items-center justify-center w-24 h-24 bg-gray-200 border border-gray-300" />
+    ) : (
+      <div
+        key={idx}
+        onClick={() => handleTileClick(idx)}
+        className="flex items-center justify-center w-24 h-24 bg-purple-300 text-white text-2xl font-bold border border-gray-300 cursor-pointer hover:bg-purple-400 transition"
+      >
+        {tile}
+      </div>
+    );
 
-  return (
+  return isLoading ? (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-purple-600 to-blue-700 font-sans">
+      <p className="text-white text-xl">Cargando...</p>
+    </div>
+  ) : (
     <div className="min-h-screen bg-gradient-to-b from-purple-600 to-blue-700 flex flex-col font-sans">
+      <BackButton />
+      <Navbar />
       <header className="p-4">
-        <h1 className="text-white text-3xl font-bold text-center">
-          Rompecabezas Deslizante
-        </h1>
+        <h1 className="text-white text-3xl font-bold text-center">Rompecabezas Deslizante</h1>
       </header>
       <main className="flex-grow flex items-center justify-center">
         <div className="grid grid-cols-3 gap-2">
