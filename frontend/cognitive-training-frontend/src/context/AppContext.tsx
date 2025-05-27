@@ -1,21 +1,21 @@
 // src/context/AppContext.tsx
 import React, { createContext, useContext, useEffect, useState, ReactNode } from "react";
 
-// Mejoramos la interfaz User con campos adicionales
 export interface User {
   id: number;
   username: string;
-  email?: string; // Campo opcional para futura expansión
+  email?: string;
   score: number;
   trainingRoute: string;
-  avatar?: string; // Nuevo campo para el avatar
-  lastLogin?: Date; // Campo para tracking de actividad
+  avatar?: string;
+  lastLogin?: Date;
+  createdAt?: Date;
 }
 
 interface AppContextProps {
   user: User | null;
   setUser: (user: User | null) => void;
-  updateUser: (updates: Partial<User>) => void; // Nueva función para actualizaciones parciales
+  updateUser: (updates: Partial<User>) => void;
   logout: () => void;
   authLoaded: boolean;
 }
@@ -26,21 +26,28 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUserState] = useState<User | null>(null);
   const [authLoaded, setAuthLoaded] = useState(false);
 
-  // Mejoramos la carga inicial con validación de datos
+  // Carga inicial del usuario desde localStorage con validación
   useEffect(() => {
-    const loadUser = () => {
+    const loadUserData = () => {
       try {
-        const storedUser = localStorage.getItem("user");
-        if (storedUser) {
-          const parsedUser = JSON.parse(storedUser);
-          if (parsedUser && typeof parsedUser === "object") {
-            setUserState({
-              id: parsedUser.id || 0,
-              username: parsedUser.username || "",
-              score: parsedUser.score || 0,
-              trainingRoute: parsedUser.trainingRoute || "default",
-              avatar: parsedUser.avatar || undefined,
-            });
+        const storedData = localStorage.getItem("user");
+        if (storedData) {
+          const parsedData = JSON.parse(storedData);
+          
+          // Validación básica de estructura de usuario
+          if (parsedData && typeof parsedData === "object") {
+            const validatedUser: User = {
+              id: Number(parsedData.id) || 0,
+              username: parsedData.username || "Usuario Anónimo",
+              score: Number(parsedData.score) || 0,
+              trainingRoute: parsedData.trainingRoute || "default",
+              email: parsedData.email || undefined,
+              avatar: parsedData.avatar || undefined,
+              lastLogin: parsedData.lastLogin ? new Date(parsedData.lastLogin) : undefined,
+              createdAt: parsedData.createdAt ? new Date(parsedData.createdAt) : new Date(),
+            };
+
+            setUserState(validatedUser);
           }
         }
       } catch (error) {
@@ -51,42 +58,58 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       }
     };
 
-    loadUser();
+    loadUserData();
   }, []);
 
-  // Función mejorada para actualizaciones parciales
+  // Actualización parcial del usuario
   const updateUser = (updates: Partial<User>) => {
     if (user) {
-      const updatedUser = { ...user, ...updates };
+      const updatedUser = { 
+        ...user, 
+        ...updates,
+        lastLogin: new Date() // Actualizar última actividad
+      };
       setUserState(updatedUser);
       localStorage.setItem("user", JSON.stringify(updatedUser));
     }
   };
 
-  // Función setUser mantenida para compatibilidad
-  const setUser = (user: User | null) => {
-    setUserState(user);
-    if (user) {
-      localStorage.setItem("user", JSON.stringify(user));
+  // Establecer usuario completo
+  const setUser = (newUser: User | null) => {
+    if (newUser) {
+      const completeUser: User = {
+        ...newUser,
+        createdAt: newUser.createdAt || new Date(),
+        lastLogin: new Date()
+      };
+      setUserState(completeUser);
+      localStorage.setItem("user", JSON.stringify(completeUser));
     } else {
+      setUserState(null);
       localStorage.removeItem("user");
     }
   };
 
-  // Logout mejorado
+  // Cerrar sesión con limpieza
   const logout = () => {
-    setUser(null);
+    setUserState(null);
+    localStorage.removeItem("user");
     // Agregar aquí cualquier otra limpieza necesaria
   };
 
   return (
-    <AppContext.Provider value={{ user, setUser, updateUser, logout, authLoaded }}>
+    <AppContext.Provider value={{ 
+      user, 
+      setUser, 
+      updateUser, 
+      logout, 
+      authLoaded 
+    }}>
       {children}
     </AppContext.Provider>
   );
 };
 
-// Hook mejorado con validación de tipos
 export const useAppContext = () => {
   const context = useContext(AppContext);
   if (!context) {

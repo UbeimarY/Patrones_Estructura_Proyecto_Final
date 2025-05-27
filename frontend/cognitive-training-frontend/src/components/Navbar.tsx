@@ -24,7 +24,7 @@ export default function Navbar() {
             {/* La imagen de perfil actúa como enlace a la cuenta */}
             <Link href="/account">
               <img
-                src="/profile.png"
+                src={user.avatar || '../images/avatar/default-avatar.png'}
                 alt="Perfil"
                 className="h-10 w-10 rounded-full border-2 border-white cursor-pointer"
               />
