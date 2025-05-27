@@ -5,16 +5,27 @@ import { useAppContext } from "../../context/AppContext";
 import Navbar from "../../components/Navbar";
 import BackButton from "../../components/BackButton";
 
-const gridSize = 3;
+type GameMode = '3x3' | '4x4' | '5x5';
+type Level = 1 | 2 | 3 | 4 | 5;
 
-const generateSolvablePuzzle = () => {
-  const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 0];
+const modeConfig = {
+  '3x3': { size: 3, movesMultiplier: 10 },
+  '4x4': { size: 4, movesMultiplier: 15 },
+  '5x5': { size: 5, movesMultiplier: 20 }
+};
+
+const generateSolvablePuzzle = (gridSize: number) => {
+  const totalTiles = gridSize * gridSize;
+  const numbers = Array.from({ length: totalTiles }, (_, i) => i === totalTiles - 1 ? 0 : i + 1);
   let inversions = 0;
+  let blankRow = 0;
+  
   do {
     for (let i = numbers.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
     }
+    
     inversions = 0;
     for (let i = 0; i < numbers.length; i++) {
       for (let j = i + 1; j < numbers.length; j++) {
@@ -23,7 +34,13 @@ const generateSolvablePuzzle = () => {
         }
       }
     }
-  } while (inversions % 2 !== 0);
+    
+    blankRow = gridSize - Math.floor(numbers.indexOf(0) / gridSize);
+  } while (
+    (gridSize % 2 === 1 && inversions % 2 !== 0) ||
+    (gridSize % 2 === 0 && (inversions + blankRow) % 2 !== 1)
+  );
+  
   return numbers;
 };
 
@@ -31,10 +48,20 @@ export default function SlidingPuzzle() {
   const { user, authLoaded } = useAppContext();
   const router = useRouter();
   const [board, setBoard] = useState<number[]>([]);
+  const [selectedMode, setSelectedMode] = useState<GameMode | null>(null);
+  const [selectedLevel, setSelectedLevel] = useState<Level | null>(null);
+  const [gameStarted, setGameStarted] = useState(false);
+  const [moves, setMoves] = useState(0);
+  const [moveLimit, setMoveLimit] = useState(0);
 
   useEffect(() => {
-    setBoard(generateSolvablePuzzle());
-  }, []);
+    if (selectedMode && selectedLevel) {
+      const gridSize = modeConfig[selectedMode].size;
+      setBoard(generateSolvablePuzzle(gridSize));
+      setMoveLimit(selectedLevel * modeConfig[selectedMode].movesMultiplier);
+      setMoves(0);
+    }
+  }, [selectedMode, selectedLevel]);
 
   useEffect(() => {
     if (authLoaded && !user) {
@@ -42,17 +69,21 @@ export default function SlidingPuzzle() {
     }
   }, [user, authLoaded, router]);
 
-  const isLoading = !authLoaded || board.length === 0;
+  const isLoading = !authLoaded || (authLoaded && !user);
 
   const getPosition = (index: number) => ({
-    row: Math.floor(index / gridSize),
-    col: index % gridSize,
+    row: Math.floor(index / (selectedMode ? modeConfig[selectedMode].size : 3)),
+    col: index % (selectedMode ? modeConfig[selectedMode].size : 3),
   });
 
   const handleTileClick = (index: number) => {
+    if (!selectedMode || !gameStarted) return;
+    
+    const gridSize = modeConfig[selectedMode].size;
     const blankIndex = board.indexOf(0);
     const { row: targetRow, col: targetCol } = getPosition(index);
     const { row: blankRow, col: blankCol } = getPosition(blankIndex);
+
     if (
       (targetRow === blankRow && Math.abs(targetCol - blankCol) === 1) ||
       (targetCol === blankCol && Math.abs(targetRow - blankRow) === 1)
@@ -60,42 +91,187 @@ export default function SlidingPuzzle() {
       const newBoard = [...board];
       [newBoard[index], newBoard[blankIndex]] = [newBoard[blankIndex], newBoard[index]];
       setBoard(newBoard);
+      setMoves(m => m + 1);
     }
   };
 
-  const renderTile = (tile: number, idx: number) =>
-    tile === 0 ? (
-      <div key={idx} className="flex items-center justify-center w-24 h-24 bg-gray-200 border border-gray-300" />
+  const checkVictory = () => {
+    if (!selectedMode) return false;
+    const gridSize = modeConfig[selectedMode].size;
+    const solution = Array.from({ length: gridSize * gridSize }, (_, i) => 
+      i === gridSize * gridSize - 1 ? 0 : i + 1
+    );
+    return board.every((num, i) => num === solution[i]);
+  };
+
+  const renderTile = (tile: number, idx: number) => {
+    const sizeClass = selectedMode ? 
+      `w-24 h-24 text-3xl` : 
+      `w-32 h-32 text-4xl`;
+
+    return tile === 0 ? (
+      <div 
+        key={idx} 
+        className={`${sizeClass} bg-gray-100/30 border-2 border-gray-300/50 rounded-xl shadow-lg backdrop-blur-sm`} 
+      />
     ) : (
       <div
         key={idx}
         onClick={() => handleTileClick(idx)}
-        className="flex items-center justify-center w-24 h-24 bg-purple-300 text-white text-2xl font-bold border border-gray-300 cursor-pointer hover:bg-purple-400 transition"
+        className={`${sizeClass} bg-gradient-to-br from-purple-400 to-blue-400 text-white 
+          font-bold border-2 border-white/20 rounded-xl shadow-xl cursor-pointer 
+          hover:scale-105 transition-all duration-200 flex items-center justify-center
+          hover:from-purple-500 hover:to-blue-500 active:scale-95`}
       >
         {tile}
       </div>
     );
+  };
 
-  return isLoading ? (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-purple-600 to-blue-700 font-sans">
-      <p className="text-white text-xl">Cargando...</p>
-    </div>
-  ) : (
-    <div className="min-h-screen bg-gradient-to-b from-purple-600 to-blue-700 flex flex-col font-sans">
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-700 to-blue-800">
+        <p className="text-white text-2xl">Cargando...</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-purple-700 to-blue-800 flex flex-col">
       <BackButton />
       <Navbar />
-      <header className="p-4">
-        <h1 className="text-white text-3xl font-bold text-center">Rompecabezas Deslizante</h1>
+      
+      <header className="p-6">
+        <h1 className="text-white text-4xl font-bold text-center drop-shadow-lg">
+          🧩 Rompecabezas Deslizante
+        </h1>
       </header>
-      <main className="flex-grow flex items-center justify-center">
-        <div className="grid grid-cols-3 gap-2">
-          {board.map((tile, idx) => renderTile(tile, idx))}
-        </div>
+
+      <main className="flex-grow flex items-center justify-center p-4">
+        {!gameStarted ? (
+          <div className="bg-white/10 backdrop-blur-lg p-8 rounded-2xl shadow-2xl space-y-8 border-2 border-white/20">
+            <div className="space-y-6">
+              <h2 className="text-3xl font-bold text-center text-white drop-shadow-md">
+                ✨ Selecciona Modo
+              </h2>
+              <div className="grid grid-cols-3 gap-6">
+                {(['3x3', '4x4', '5x5'] as GameMode[]).map(mode => (
+                  <button
+                    key={mode}
+                    onClick={() => setSelectedMode(mode)}
+                    className={`px-8 py-6 rounded-xl text-2xl font-semibold transition-all
+                      ${selectedMode === mode 
+                        ? 'bg-gradient-to-br from-purple-500 to-blue-500 text-white shadow-lg'
+                        : 'bg-white/20 hover:bg-white/30 text-white/80 hover:text-white'}`}
+                  >
+                    {mode}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {selectedMode && (
+              <div className="space-y-6">
+                <h2 className="text-3xl font-bold text-center text-white drop-shadow-md">
+                  🚀 Elige Nivel
+                </h2>
+                <div className="grid grid-cols-5 gap-4">
+                  {[1, 2, 3, 4, 5].map(level => (
+                    <button
+                      key={level}
+                      onClick={() => setSelectedLevel(level as Level)}
+                      className={`aspect-square flex items-center justify-center text-2xl 
+                        rounded-xl transition-all ${selectedLevel === level 
+                          ? 'bg-gradient-to-br from-green-400 to-cyan-400 text-white shadow-lg'
+                          : 'bg-white/20 hover:bg-white/30 text-white/80 hover:text-white'}`}
+                    >
+                      {level}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {selectedMode && selectedLevel && (
+              <button
+                onClick={() => setGameStarted(true)}
+                className="w-full bg-gradient-to-br from-green-400 to-cyan-500 text-white 
+                  py-4 text-2xl rounded-xl hover:scale-105 transition-all 
+                  shadow-lg hover:shadow-xl active:scale-95"
+              >
+                🎮 Comenzar Juego
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className="space-y-8">
+            <div className="text-center text-white space-y-2">
+              <p className="text-2xl font-semibold drop-shadow-md">
+                Movimientos: <span className="text-cyan-300">{moves}</span>/{moveLimit}
+              </p>
+              <p className="text-xl text-white/80">
+                Modo: {selectedMode} - Nivel: {selectedLevel}
+              </p>
+            </div>
+            
+            <div className={`grid gap-3 ${selectedMode === '3x3' ? 'grid-cols-3' :
+              selectedMode === '4x4' ? 'grid-cols-4' : 'grid-cols-5'} 
+              p-6 bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl border-2 border-white/20`}>
+              {board.map((tile, idx) => renderTile(tile, idx))}
+            </div>
+
+            {(checkVictory() || moves >= moveLimit) && (
+              <div className="bg-white/10 backdrop-blur-lg p-8 rounded-2xl text-center 
+                border-2 border-white/20 shadow-2xl space-y-6">
+                <h2 className="text-4xl font-bold flex items-center justify-center gap-3">
+                  {checkVictory() ? (
+                    <>
+                      🏆 ¡Victoria! <span className="text-green-400">+100 Puntos</span>
+                    </>
+                  ) : (
+                    <>
+                      💥 ¡Inténtalo de nuevo! <span className="text-red-400">-0 Puntos</span>
+                    </>
+                  )}
+                </h2>
+                <p className="text-2xl text-white/90">
+                  {checkVictory() 
+                    ? `Completado en ${moves} movimientos`
+                    : `Superaste el límite de ${moveLimit} movimientos`}
+                </p>
+                <div className="flex justify-center gap-4">
+                  <button
+                    onClick={() => {
+                      setGameStarted(false);
+                      setSelectedLevel(null);
+                    }}
+                    className="bg-gradient-to-br from-purple-500 to-blue-500 text-white 
+                      px-8 py-3 text-xl rounded-xl hover:scale-105 transition-all 
+                      shadow-lg flex items-center gap-2"
+                  >
+                    🔄 Reiniciar
+                  </button>
+                  <button
+                    onClick={() => {
+                      setGameStarted(false);
+                      setSelectedMode(null);
+                      setSelectedLevel(null);
+                    }}
+                    className="bg-gradient-to-br from-gray-500 to-gray-700 text-white 
+                      px-8 py-3 text-xl rounded-xl hover:scale-105 transition-all 
+                      shadow-lg flex items-center gap-2"
+                  >
+                    🏠 Menú Principal
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </main>
-      <footer className="p-4 text-center">
-        <p className="text-white text-sm">
-          © {new Date().getFullYear()} Cognitive Training App. All rights reserved.
-        </p>
+
+      <footer className="p-4 text-center text-white/80 text-sm">
+        © {new Date().getFullYear()} Cognitive Training App. Todos los derechos reservados.
       </footer>
     </div>
   );
