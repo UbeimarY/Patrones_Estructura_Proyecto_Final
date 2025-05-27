@@ -25,7 +25,11 @@ export default function Account() {
           {/* Portada con gradiente */}
           <div className="h-48 bg-gradient-to-r from-purple-500 to-blue-500 relative">
             <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2">
-              
+            <img
+              src={user.avatar || '../images/avatar/default-avatar.png'}
+              alt="Avatar"
+              className="w-32 h-32 rounded-full border-4 border-white shadow-xl"
+            />
             </div>
           </div>
 
