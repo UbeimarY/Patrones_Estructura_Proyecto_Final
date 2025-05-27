@@ -123,31 +123,32 @@ export default function Trivia() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-600 to-blue-700 flex flex-col font-sans">
-      <header className="flex justify-between items-center p-4 bg-purple-700 text-white shadow-md">
-        <button
-          onClick={() => router.push("/")}
-          className="p-2 rounded-full bg-white text-purple-700 hover:bg-gray-200 hover:scale-110 transition flex items-center justify-center"
-        >
-          ⬅
-        </button>
-        <h1 className="text-xl font-bold text-center flex-1">Cognitive Training</h1>
-        <nav className="flex space-x-4">
-          <button onClick={() => router.push("/")} className="text-white hover:underline">
-            Inicio
+    <div className="min-h-screen bg-gradient-to-b from-purple-600 to-blue-700 flex flex-col font-sans items-center">
+      <header className="w-full max-w-6xl px-4 mt-6">
+        <div className="flex justify-between items-center p-4 bg-purple-700/90 text-white shadow-xl rounded-2xl">
+          <button
+            onClick={() => router.push("/")}
+            className="p-3 rounded-full bg-white text-purple-700 hover:bg-gray-200 hover:scale-110 transition-all"
+          >
+            ⬅
           </button>
-          <button onClick={() => router.push("/logout")} className="text-white hover:underline">
-            Cerrar Sesión
-          </button>
-        </nav>
+          <h1 className="text-2xl font-bold text-center">Cognitive Training</h1>
+          <nav className="flex space-x-4">
+            <button onClick={() => router.push("/")} className="text-white hover:underline text-lg">
+              Inicio
+            </button>
+            <button onClick={() => router.push("/logout")} className="text-white hover:underline text-lg">
+              Cerrar Sesión
+            </button>
+          </nav>
+        </div>
       </header>
 
-      <main className="flex-grow flex items-start justify-center p-4 gap-6">
-        {/* Panel de estadísticas */}
+      <main className="w-full max-w-6xl px-4 flex-grow flex items-start justify-center gap-8 py-8">
         {gameMode && !finished && (
-          <div className="hidden md:block bg-white/20 backdrop-blur-sm p-6 rounded-lg border border-white/20 shadow-lg w-64 sticky top-4">
-            <h3 className="text-white text-lg font-bold mb-4">Estadísticas</h3>
-            <div className="space-y-3 text-white">
+          <div className="hidden md:block bg-white/20 backdrop-blur-sm p-6 rounded-xl border border-white/20 shadow-lg w-72 sticky top-8">
+            <h3 className="text-white text-xl font-bold mb-6">Estadísticas</h3>
+            <div className="space-y-4 text-white text-lg">
               <div className="flex justify-between">
                 <span>Modo:</span>
                 <span className="font-semibold capitalize">{gameMode}</span>
@@ -171,134 +172,145 @@ export default function Trivia() {
                 </div>
               )}
               {gameMode === "supervivencia" && (
-                <div className="flex justify-between">
+                <div className="flex justify-between items-center">
                   <span>Vidas:</span>
-                  <span className="font-semibold">{lives} ❤️</span>
+                  <div className="flex gap-1">
+                    {Array.from({ length: lives }).map((_, index) => (
+                      <span key={index} className="text-red-500 text-2xl">❤️</span>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
           </div>
         )}
 
-        {/* Contenido principal */}
-        {!gameMode ? (
-          <div className="bg-white/20 backdrop-blur-sm p-8 rounded-lg border border-white/20 shadow-lg text-center">
-            <h2 className="text-white text-2xl mb-6">Selecciona modo de juego</h2>
-            <div className="flex flex-col gap-4">
-              <button
-                onClick={() => startGame("clásico")}
-                className="bg-purple-500 text-white px-6 py-3 rounded-lg hover:bg-purple-600 transition-transform transform hover:scale-105"
-              >
-                🕰️ Modo Clásico
-                <p className="text-sm mt-1">Responde a tu ritmo</p>
-              </button>
-              <button
-                onClick={() => startGame("contraReloj")}
-                className="bg-yellow-500 text-white px-6 py-3 rounded-lg hover:bg-yellow-600 transition-transform transform hover:scale-105"
-              >
-                ⏳ Contra Reloj
-                <p className="text-sm mt-1">10 segundos por pregunta</p>
-              </button>
-              <button
-                onClick={() => startGame("supervivencia")}
-                className="bg-red-500 text-white px-6 py-3 rounded-lg hover:bg-red-600 transition-transform transform hover:scale-105"
-              >
-                ❤️ Modo Supervivencia
-                <p className="text-sm mt-1">3 vidas, 1 error = perder</p>
-              </button>
-            </div>
-          </div>
-        ) : finished ? (
-          <div className="bg-white/20 backdrop-blur-sm p-8 rounded-lg border border-white/20 shadow-lg text-center">
-            <h2 className="text-white text-2xl mb-4">Juego Terminado</h2>
-            <p className="text-white text-xl mb-2">
-              Puntuación: {score}/{questions.length}
-            </p>
-            {gameMode === "supervivencia" && (
-              <p className="text-white">Vidas restantes: {lives}</p>
-            )}
-            <div className="mt-4 grid grid-cols-2 gap-2">
-              <div className="bg-green-500/20 p-3 rounded">
-                <p className="text-green-400">Correctas: {correctAnswers}</p>
-              </div>
-              <div className="bg-red-500/20 p-3 rounded">
-                <p className="text-red-400">Incorrectas: {incorrectAnswers}</p>
+        <div className="flex-1 max-w-4xl">
+          {!gameMode ? (
+            <div className="bg-white/20 backdrop-blur-sm p-8 rounded-2xl border border-white/20 shadow-xl text-center">
+              <h2 className="text-white text-3xl mb-8 font-bold">Selecciona modo de juego</h2>
+              <div className="flex flex-col gap-6">
+                <button
+                  onClick={() => startGame("clásico")}
+                  className="bg-purple-500 text-white px-8 py-6 rounded-xl hover:bg-purple-600 transition-all transform hover:scale-105 text-xl"
+                >
+                  🕰️ Modo Clásico
+                  <p className="text-base mt-3 opacity-90">Responde a tu ritmo</p>
+                </button>
+                <button
+                  onClick={() => startGame("contraReloj")}
+                  className="bg-yellow-500 text-white px-8 py-6 rounded-xl hover:bg-yellow-600 transition-all transform hover:scale-105 text-xl"
+                >
+                  ⏳ Contra Reloj
+                  <p className="text-base mt-3 opacity-90">10 segundos por pregunta</p>
+                </button>
+                <button
+                  onClick={() => startGame("supervivencia")}
+                  className="bg-red-500 text-white px-8 py-6 rounded-xl hover:bg-red-600 transition-all transform hover:scale-105 text-xl"
+                >
+                  ❤️ Modo Supervivencia
+                  <p className="text-base mt-3 opacity-90">3 vidas, 1 error = perder</p>
+                </button>
               </div>
             </div>
-            <button
-              onClick={() => setGameMode(null)}
-              className="mt-6 bg-white text-purple-600 font-bold py-2 px-6 rounded hover:bg-gray-200 transition"
-            >
-              Jugar de nuevo
-            </button>
-          </div>
-        ) : (
-          <div className="bg-white/20 backdrop-blur-sm p-8 rounded-lg border border-white/20 shadow-lg text-center w-full max-w-2xl">
-            {gameMode === "contraReloj" && (
-              <div className="mb-4">
-                <div className="h-3 bg-gray-200 rounded-full mb-2">
-                  <div
-                    className="h-full bg-yellow-400 rounded-full transition-all duration-1000"
-                    style={{ width: `${(timeLeft / 10) * 100}%` }}
-                  />
+          ) : finished ? (
+            <div className="bg-white/20 backdrop-blur-sm p-8 rounded-2xl border border-white/20 shadow-xl text-center">
+              <h2 className="text-white text-3xl mb-6 font-bold">Juego Terminado</h2>
+              <p className="text-white text-2xl mb-4">
+                Puntuación: {score}/{questions.length}
+              </p>
+              {gameMode === "supervivencia" && (
+                <p className="text-white text-xl mb-4">Vidas restantes: {lives}</p>
+              )}
+              <div className="grid grid-cols-2 gap-4 mb-8">
+                <div className="bg-green-500/20 p-4 rounded-xl">
+                  <p className="text-green-400 text-xl">Correctas: {correctAnswers}</p>
                 </div>
-                <p className="text-white font-bold text-lg">{timeLeft}s restantes</p>
+                <div className="bg-red-500/20 p-4 rounded-xl">
+                  <p className="text-red-400 text-xl">Incorrectas: {incorrectAnswers}</p>
+                </div>
               </div>
-            )}
+              <button
+                onClick={() => setGameMode(null)}
+                className="bg-white text-purple-600 font-bold py-3 px-8 rounded-xl hover:bg-gray-200 transition-all text-lg"
+              >
+                Jugar de nuevo
+              </button>
+            </div>
+          ) : (
+            <div className="bg-white/20 backdrop-blur-sm p-8 rounded-2xl border border-white/20 shadow-xl text-center w-full">
+              {gameMode === "contraReloj" && (
+                <div className="mb-8">
+                  <div className="h-4 bg-gray-200 rounded-full mb-4">
+                    <div
+                      className="h-full bg-yellow-400 rounded-full transition-all duration-1000"
+                      style={{ width: `${(timeLeft / 10) * 100}%` }}
+                    />
+                  </div>
+                  <p className="text-white font-bold text-2xl">{timeLeft}s restantes</p>
+                </div>
+              )}
 
-            {gameMode === "supervivencia" && (
-              <div className="mb-4 flex justify-center gap-2">
-                {Array.from({ length: lives }).map((_, index) => (
-                  <span key={index} className="text-red-500 text-2xl">❤️</span>
+              {gameMode === "supervivencia" && (
+                <div className="mb-8 flex justify-center gap-3">
+                  {Array.from({ length: lives }).map((_, index) => (
+                    <span key={index} className="text-red-500 text-3xl">❤️</span>
+                  ))}
+                </div>
+              )}
+
+              <h2 className="text-white text-3xl mb-8 font-semibold leading-relaxed">
+                {questions[currentQuestion].question}
+              </h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                {questions[currentQuestion].options.map((option) => (
+                  <button
+                    key={option}
+                    onClick={() => setSelected(option)}
+                    className={`p-5 rounded-xl transition-all text-xl ${
+                      selected === option
+                        ? "bg-purple-600 scale-105 shadow-lg"
+                        : "bg-white/20 hover:bg-white/30"
+                    } text-white font-medium hover:shadow-md`}
+                  >
+                    {option}
+                  </button>
                 ))}
               </div>
-            )}
 
-            <h2 className="text-white text-2xl mb-6">{questions[currentQuestion].question}</h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
-              {questions[currentQuestion].options.map((option) => (
-                <button
-                  key={option}
-                  onClick={() => setSelected(option)}
-                  className={`p-4 rounded-lg transition-all ${
-                    selected === option
-                      ? "bg-purple-600 scale-105"
-                      : "bg-white/20 hover:bg-white/30"
-                  } text-white font-medium`}
-                >
-                  {option}
-                </button>
-              ))}
+              <button
+                onClick={handleSubmit}
+                disabled={selected === ""}
+                className={`px-10 py-5 rounded-xl font-bold text-xl transition-all ${
+                  selected === ""
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-white text-purple-600 hover:bg-gray-200 hover:scale-105"
+                } shadow-md`}
+              >
+                Comprobar Respuesta
+              </button>
+
+              {result && (
+                <div className={`mt-8 p-4 rounded-xl text-xl ${
+                  result.includes("Correcto") 
+                    ? "bg-green-100 text-green-800" 
+                    : "bg-red-100 text-red-800"
+                }`}>
+                  {result}
+                </div>
+              )}
             </div>
-
-            <button
-              onClick={handleSubmit}
-              disabled={selected === ""}
-              className={`px-8 py-3 rounded-lg font-bold transition ${
-                selected === ""
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-white text-purple-600 hover:bg-gray-200"
-              }`}
-            >
-              Comprobar Respuesta
-            </button>
-
-            {result && (
-              <div className={`mt-4 p-3 rounded-lg ${
-                result.includes("Correcto") ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
-              }`}>
-                {result}
-              </div>
-            )}
-          </div>
-        )}
+          )}
+        </div>
       </main>
 
-      <footer className="p-4 text-center">
-        <p className="text-white text-sm">
-          © {new Date().getFullYear()} Cognitive Training App. Todos los derechos reservados.
-        </p>
+      <footer className="w-full max-w-6xl px-4 pb-6">
+        <div className="text-center p-4 bg-purple-700/30 rounded-xl">
+          <p className="text-white text-sm">
+            © {new Date().getFullYear()} Cognitive Training App. Todos los derechos reservados.
+          </p>
+        </div>
       </footer>
     </div>
   );
