@@ -122,92 +122,182 @@ export default function ChessGame() {
   const renderBoard = () => {
     const board = game.board();
     return (
-      <div className="grid grid-cols-8 grid-rows-8 border border-white" ref={boardRef}>
-        {board.map((row, rowIndex) =>
-          row.map((cell, colIndex) => {
-            const square = `${String.fromCharCode(97 + colIndex)}${8 - rowIndex}`;
-            const isDark = (rowIndex + colIndex) % 2 === 1;
-            const isSelected = selected === square;
-            return (
-              <div
-                key={square}
-                onClick={() => handleCellClick(square)}
-                className={`w-16 h-16 flex items-center justify-center cursor-pointer border 
-                ${isDark ? 'bg-gray-600' : 'bg-gray-300'}
-                ${isSelected ? 'ring-4 ring-yellow-400' : ''}`}
-              >
-                <span className="text-2xl">
-                  {cell ? pieceUnicode[cell.color === 'w' ? cell.type.toUpperCase() : cell.type] : ""}
-                </span>
-              </div>
-            );
-          })
-        )}
+      <div className="relative bg-amber-800 p-4 rounded-xl shadow-2xl border-8 border-amber-900">
+        <div className="grid grid-cols-8 grid-rows-8 border-2 border-gray-800">
+          {board.map((row, rowIndex) =>
+            row.map((cell, colIndex) => {
+              const square = `${String.fromCharCode(97 + colIndex)}${8 - rowIndex}`;
+              const isDark = (rowIndex + colIndex) % 2 === 1;
+              const isSelected = selected === square;
+              const kingPosition = game.board().flat().find(p => p?.type === 'k' && p.color === game.turn())?.square;
+              const isCheck = kingPosition === square && game.isCheck();
+              const isValidMove = game.moves({ square: square as Square }).length > 0;
+              
+              return (
+                <div
+                  key={square}
+                  onClick={() => handleCellClick(square)}
+                  className={`relative w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center cursor-pointer
+                    ${isDark ? 'bg-amber-700' : 'bg-amber-100'}
+                    ${isSelected ? 'ring-4 ring-yellow-400 z-10' : ''}
+                    ${isCheck ? 'bg-red-500 animate-pulse' : ''}
+                    ${isValidMove && !cell ? 'hover:bg-opacity-80' : ''}
+                    transition-all duration-150 ease-in-out`}
+                >
+                  {/* Coordenadas de tablero */}
+                  {colIndex === 0 && (
+                    <div className="absolute top-1 left-1 text-xs font-bold text-gray-800">
+                      {8 - rowIndex}
+                    </div>
+                  )}
+                  {rowIndex === 7 && (
+                    <div className="absolute bottom-1 right-1 text-xs font-bold text-gray-800">
+                      {String.fromCharCode(97 + colIndex)}
+                    </div>
+                  )}
+                  
+                  {/* Indicador de movimiento válido */}
+                  {!cell && isValidMove && (
+                    <div className="absolute w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-green-500 bg-opacity-60"></div>
+                  )}
+                  
+                  {/* Pieza */}
+                  {cell && (
+                    <span 
+                      className={`text-2xl sm:text-3xl drop-shadow-lg transition-transform duration-150 ${
+                        cell.color === 'w' ? 'text-white' : 'text-gray-900'
+                      }`}
+                      style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.8)' }}
+                    >
+                      {pieceUnicode[cell.color === 'w' ? cell.type.toUpperCase() : cell.type]}
+                    </span>
+                  )}
+                </div>
+              );
+            })
+          )}
+        </div>
       </div>
     );
   };
 
-  const renderCaptured = (pieces: string[]) => (
-    <div className="flex flex-wrap gap-1 p-2 bg-white/10 border rounded w-32 justify-center">
+  const renderCaptured = (pieces: string[], color: 'white' | 'black') => (
+    <div className={`flex flex-wrap gap-1 p-2 rounded-lg w-32 justify-center ${color === 'white' ? 'bg-black/20' : 'bg-white/20'}`}>
       {pieces.map((p, i) => (
-        <span key={i} className="text-xl animate-pulse">{pieceUnicode[p]}</span>
+        <span 
+          key={i} 
+          className={`text-xl sm:text-2xl transition-all duration-300 hover:scale-125 ${
+            p === p.toUpperCase() ? 'text-white' : 'text-gray-900'
+          }`}
+        >
+          {pieceUnicode[p]}
+        </span>
       ))}
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-600 to-blue-700 flex flex-col font-sans">
-      <header className="p-4 flex justify-between items-center text-white">
+    <div className="min-h-screen bg-gradient-to-b from-purple-900 to-blue-900 flex flex-col font-sans">
+      <header className="p-4 flex justify-between items-center text-white bg-black/30">
         <div className="flex items-center gap-4">
-          <a href="/" className="text-2xl hover:underline">←</a>
-          <h1 className="text-3xl font-bold">Cognitive Training</h1>
+          <a href="/" className="text-2xl hover:underline hover:text-blue-300 transition-colors">←</a>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+            Cognitive Training
+          </h1>
         </div>
         <div className="flex gap-4 items-center">
-          <a href="/" className="hover:underline">Inicio</a>
-          <button className="hover:underline">Cerrar Sesión</button>
-          <div className="w-10 h-10 rounded-full bg-white/30 flex items-center justify-center">
+          <a href="/" className="hover:underline hover:text-blue-300 transition-colors">Inicio</a>
+          <button className="hover:underline hover:text-blue-300 transition-colors">Cerrar Sesión</button>
+          <div className="w-10 h-10 rounded-full bg-white/30 flex items-center justify-center hover:bg-white/40 transition-colors">
             <span>👤</span>
           </div>
         </div>
       </header>
 
-      <main className="flex-grow flex flex-col items-center justify-center gap-4 py-4">
-        <h2 className="text-white text-2xl">Ajedrez</h2>
+      <main className="flex-grow flex flex-col items-center justify-center gap-6 py-6 px-4">
+        <div className="flex flex-col items-center gap-3">
+          <h2 className="text-white text-2xl font-bold flex items-center gap-3">
+            <span className="bg-gradient-to-r from-amber-300 to-amber-500 bg-clip-text text-transparent">Ajedrez</span>
+            <div className="flex items-center gap-2">
+              <span className={`w-4 h-4 rounded-full ${turn === 'w' ? 'bg-amber-300' : 'bg-gray-800 border border-amber-300'}`}></span>
+              <span className="text-base font-normal text-amber-100">
+                {turn === 'w' ? 'Tu turno' : 'Turno de la IA'}
+              </span>
+            </div>
+          </h2>
 
-        <div className="mb-2">
-          <label className="text-white mr-2">Dificultad:</label>
-          <select
-            className="rounded px-2 py-1"
-            value={level}
-            onChange={(e) => resetGame(e.target.value as 'easy' | 'medium' | 'hard')}
-          >
-            <option value="easy">Fácil</option>
-            <option value="medium">Medio</option>
-            <option value="hard">Difícil</option>
-          </select>
+          {/* Indicador de dificultad */}
+          <div className="flex items-center justify-center gap-2 mb-2">
+            {['easy', 'medium', 'hard'].map(diff => (
+              <div key={diff} className={`w-3 h-3 rounded-full ${
+                level === diff ? 'bg-green-400' : 'bg-gray-500'
+              }`}></div>
+            ))}
+          </div>
+        </div>
+
+        {/* Panel de dificultad */}
+        <div className="bg-white/20 backdrop-blur-sm p-3 rounded-lg border border-white/30 max-w-md w-full">
+          <div className="text-center text-white mb-2 font-medium">Nivel de Dificultad</div>
+          <div className="flex flex-wrap justify-center gap-2">
+            {(['easy', 'medium', 'hard'] as const).map((diff) => (
+              <button
+                key={diff}
+                className={`px-4 py-2 rounded-full transition-all ${
+                  level === diff
+                    ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg'
+                    : 'bg-white/20 text-white hover:bg-white/30'
+                }`}
+                onClick={() => resetGame(diff)}
+              >
+                {diff === 'easy' ? 'Fácil' : diff === 'medium' ? 'Medio' : 'Difícil'}
+              </button>
+            ))}
+          </div>
         </div>
 
         {status && (
-          <div className="bg-red-100 text-red-800 px-4 py-2 rounded border border-red-400 mt-2">
+          <div className="bg-gradient-to-r from-red-500 to-orange-500 text-white px-6 py-3 rounded-xl border-2 border-white/50 shadow-lg max-w-md w-full text-center animate-pulse">
             {status}
           </div>
         )}
 
-        <div className="flex items-start gap-4">
+        {/* Tablero y piezas capturadas */}
+        <div className="flex flex-col lg:flex-row items-center gap-6 w-full max-w-4xl">
           <div className="flex flex-col items-center">
-            <p className="text-white mb-1">Capturadas (por ti)</p>
-            {renderCaptured(capturedBlack)}
+            <div className="flex items-center gap-2 text-white mb-2 font-medium">
+              <span>👤</span>
+              <span>Tú</span>
+            </div>
+            {renderCaptured(capturedBlack, 'black')}
           </div>
-          {renderBoard()}
+          
+          <div className="relative">
+            {renderBoard()}
+            {/* Botones flotantes */}
+            <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 flex gap-3">
+              <button 
+                onClick={() => resetGame(level)}
+                className="p-3 bg-gradient-to-r from-amber-500 to-amber-700 rounded-full hover:from-amber-600 hover:to-amber-800 transition shadow-lg flex items-center justify-center"
+                title="Reiniciar partida"
+              >
+                <span className="text-white text-xl">🔄</span>
+              </button>
+            </div>
+          </div>
+          
           <div className="flex flex-col items-center">
-            <p className="text-white mb-1">Capturadas (por bot)</p>
-            {renderCaptured(capturedWhite)}
+            <div className="flex items-center gap-2 text-white mb-2 font-medium">
+              <span>🤖</span>
+              <span>Rival</span>
+            </div>
+            {renderCaptured(capturedWhite, 'white')}
           </div>
         </div>
       </main>
 
-      <footer className="p-4 text-center text-white text-sm">
-        © {new Date().getFullYear()} Cognitive Training App. All rights reserved.
+      <footer className="p-4 text-center text-white text-sm bg-black/30">
+        © {new Date().getFullYear()} Cognitive Training App. Todos los derechos reservados.
       </footer>
     </div>
   );

@@ -4,8 +4,31 @@ import { useAppContext } from '../../context/AppContext';
 
 type GamePhase = 'idle' | 'waiting' | 'ready' | 'result';
 
+// Función para formato de tiempo
+const formatTime = (ms: number) => {
+  if (ms < 1000) return `${ms}ms`;
+  if (ms < 60000) return `${(ms / 1000).toFixed(2)}s`;
+  return `${(ms / 60000).toFixed(2)}min`;
+};
+
+const READY_COLORS = [
+  'bg-green-600', 
+  'bg-yellow-500',
+  'bg-orange-500',
+  'bg-pink-500',
+  'bg-cyan-500'
+];
+
+const PING_COLORS = [
+  'bg-green-400',
+  'bg-yellow-400',
+  'bg-orange-400',
+  'bg-pink-400',
+  'bg-cyan-400'
+];
+
 const ReactionTimeGame = () => {
-  const { user, logout } = useAppContext(); // Añadida función logout
+  const { user, logout } = useAppContext();
   const router = useRouter();
   const [gamePhase, setGamePhase] = useState<GamePhase>('idle');
   const [reactionTime, setReactionTime] = useState<number | null>(null);
@@ -20,6 +43,7 @@ const ReactionTimeGame = () => {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [level, setLevel] = useState(1);
   const [scores, setScores] = useState<number[]>([]);
+  const [currentColorIndex, setCurrentColorIndex] = useState(0); // Para colores variables
 
   useEffect(() => {
     if (!user) router.push('/login');
@@ -28,7 +52,6 @@ const ReactionTimeGame = () => {
     };
   }, [user, router]);
 
-  // Función para cerrar sesión
   const handleLogout = () => {
     logout();
     router.push('/login');
@@ -44,6 +67,8 @@ const ReactionTimeGame = () => {
     const delay = Math.random() * (maxWaitTime - minWaitTime) + minWaitTime;
     
     timeoutRef.current = setTimeout(() => {
+      const randomIndex = Math.floor(Math.random() * READY_COLORS.length);
+      setCurrentColorIndex(randomIndex);
       setGamePhase('ready');
       startTimeRef.current = Date.now();
     }, delay);
@@ -66,7 +91,6 @@ const ReactionTimeGame = () => {
       setReactionTime(reaction);
       setGamePhase('result');
       
-      // Actualizar estadísticas
       const newHistory = [...stats.history, reaction];
       const newStats = {
         attempts: stats.attempts + 1,
@@ -76,12 +100,10 @@ const ReactionTimeGame = () => {
       };
       setStats(newStats);
       
-      // Guardar puntuación para gráfico
       setScores(prev => [...prev, reaction].slice(-6));
     }
   };
 
-  // Función para reiniciar completamente el juego
   const resetAll = () => {
     setGamePhase('idle');
     setReactionTime(null);
@@ -99,7 +121,6 @@ const ReactionTimeGame = () => {
     }
   };
 
-  // Función para reiniciar solo el juego actual
   const resetGame = () => {
     setGamePhase('idle');
     setReactionTime(null);
@@ -117,7 +138,7 @@ const ReactionTimeGame = () => {
         : "Presiona 'Comenzar' para iniciar";
       case 'waiting': return "Espera el cambio de color...";
       case 'ready': return "¡AHORA! Haz clic rápido";
-      case 'result': return `Tu tiempo: ${reactionTime}ms`;
+      case 'result': return `Tu tiempo: ${formatTime(reactionTime!)}`;
       default: return "";
     }
   };
@@ -139,10 +160,8 @@ const ReactionTimeGame = () => {
     return "Experto (espera muy corta)";
   };
 
-  // Componente de Encabezado con navegación MODIFICADO
   const GameHeader = () => (
     <header className="p-4 flex items-center justify-between bg-black/30 backdrop-blur-sm border-b border-white/20">
-      {/* Botón de Inicio (casa) */}
       <button 
         onClick={() => router.push('/')}
         className="text-white hover:text-purple-300 transition flex items-center"
@@ -155,7 +174,6 @@ const ReactionTimeGame = () => {
       <h1 className="text-white text-xl md:text-2xl font-bold">Prueba de Tiempo de Reacción</h1>
       
       <div className="flex space-x-3">
-        {/* Botón de Cerrar Sesión */}
         <button 
           onClick={handleLogout}
           className="text-white hover:text-red-300 transition flex items-center"
@@ -171,7 +189,7 @@ const ReactionTimeGame = () => {
   return (
     <div 
       className={`min-h-screen flex flex-col font-sans transition-all duration-300 ${
-        gamePhase === 'ready' ? 'bg-green-600' : 
+        gamePhase === 'ready' ? READY_COLORS[currentColorIndex] : 
         gamePhase === 'result' ? 'bg-blue-700' : 
         tooSoon ? 'bg-red-700' : 'bg-gradient-to-b from-purple-900 to-blue-900'
       }`}
@@ -184,7 +202,7 @@ const ReactionTimeGame = () => {
           <div className="mb-6">
             <div className="h-32 w-32 mx-auto rounded-full bg-white/20 flex items-center justify-center mb-6 relative">
               {gamePhase === 'ready' && (
-                <div className="animate-ping absolute h-32 w-32 rounded-full bg-green-400 opacity-50"></div>
+                <div className={`animate-ping absolute h-32 w-32 rounded-full ${PING_COLORS[currentColorIndex]} opacity-50`}></div>
               )}
               <span className="text-6xl text-white relative">
                 {gamePhase === 'ready' ? '👆' : 
@@ -199,7 +217,7 @@ const ReactionTimeGame = () => {
               <div className="text-white mb-6">
                 <p className="text-3xl font-bold mb-2">{getFeedback()}</p>
                 <p className="text-xl">
-                  Mejor: {stats.bestTime}ms | Promedio: {stats.average}ms
+                  Mejor: {formatTime(stats.bestTime!)} | Promedio: {formatTime(stats.average)}
                 </p>
               </div>
             )}
@@ -248,7 +266,6 @@ const ReactionTimeGame = () => {
           </div>
         </div>
         
-        {/* Gráfico de resultados */}
         {scores.length > 0 && (
           <div className="mt-8 bg-black/20 p-6 rounded-xl w-full max-w-2xl">
             <h3 className="text-white text-xl font-bold mb-4">Tus últimos tiempos:</h3>
@@ -267,7 +284,7 @@ const ReactionTimeGame = () => {
                       }`}
                       style={{ height: `${height}%` }}
                     ></div>
-                    <span className="text-white text-xs mt-2">{time}ms</span>
+                    <span className="text-white text-xs mt-2">{formatTime(time)}</span>
                   </div>
                 );
               })}
@@ -275,7 +292,6 @@ const ReactionTimeGame = () => {
           </div>
         )}
         
-        {/* Estadísticas avanzadas */}
         {stats.history.length > 0 && (
           <div className="mt-6 bg-black/20 p-4 rounded-xl w-full max-w-2xl">
             <div className="flex justify-between items-center mb-3">
@@ -296,7 +312,7 @@ const ReactionTimeGame = () => {
                       : 'bg-gray-500 text-white'
                   }`}
                 >
-                  {time}ms
+                  {formatTime(time)}
                 </div>
               ))}
             </div>
@@ -308,17 +324,15 @@ const ReactionTimeGame = () => {
         <p>© {new Date().getFullYear()} Cognitive Training App. Todos los derechos reservados.</p>
       </footer>
 
-      {/* Overlay para clic demasiado pronto */}
       {tooSoon && (
         <div className="fixed inset-0 bg-red-600 bg-opacity-90 flex items-center justify-center z-50">
           <div className="text-white text-4xl md:text-5xl font-bold animate-bounce text-center p-4">
             ¡DEMASIADO PRONTO!<br />
-            <span className="text-xl">Espera a que la pantalla se vuelva verde</span>
+            <span className="text-xl">Espera a que la pantalla cambie de color</span>
           </div>
         </div>
       )}
 
-      {/* Instrucciones */}
       {gamePhase === 'idle' && stats.attempts === 0 && (
         <div className="fixed bottom-4 left-4 right-4 bg-purple-900/80 text-white p-4 rounded-lg backdrop-blur-sm max-w-md mx-auto border border-purple-500">
           <h3 className="font-bold mb-2 flex items-center">
@@ -329,7 +343,7 @@ const ReactionTimeGame = () => {
           </h3>
           <ol className="list-decimal pl-5 space-y-1">
             <li>Presiona "Comenzar"</li>
-            <li>Espera a que la pantalla se vuelva VERDE</li>
+            <li>Espera a que la pantalla cambie de color</li>
             <li>Haz clic lo más rápido posible cuando veas el cambio</li>
             <li>¡No hagas clic demasiado pronto o fallarás!</li>
           </ol>
