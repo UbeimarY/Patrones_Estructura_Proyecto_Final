@@ -59,7 +59,7 @@ const games: Game[] = [
     title: "Juego de Cartas",
     description:
       "Mejora tu agilidad mental con este divertido juego de cartas.",
-    image: "/games/card-game-banner.jpg",
+    image: "/GamesImagenes/GameCardsImg.jpeg",
     category: "Reacción",
     technologies: ["Rapidez", "Atención"],
     link: "/games/card-game",
