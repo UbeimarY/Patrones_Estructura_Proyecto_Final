@@ -55,9 +55,12 @@ export const submitScore = async (gameId: string, score: number) => {
 };
 
 export const getGames = async () => {
-  const response = await axios.get(`${API_BASE_URL}/api/games`);
+  const url = `${API_BASE_URL}/api/games`;
+  console.log("Llamando a:", url);
+  const response = await axios.get(url);
   return response.data;
 };
+
 
 // ------------------------
 // Usuarios

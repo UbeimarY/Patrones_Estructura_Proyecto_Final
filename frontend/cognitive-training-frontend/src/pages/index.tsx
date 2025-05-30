@@ -1,13 +1,11 @@
 // src/pages/index.tsx
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/router";
 import Navbar from "../components/Navbar";
 import { useAppContext } from "../context/AppContext";
 import GameCard, { Game } from "../components/GameCard";
-import { getGames } from "../utils/api";
 
-// Array local de juegos (los mismos que definías originalmente)
-const LOCAL_GAMES: Game[] = [
+const games: Game[] = [
   {
     id: "sliding-puzzle",
     title: "Rompecabezas Deslizante",
@@ -69,43 +67,18 @@ const LOCAL_GAMES: Game[] = [
 ];
 
 export default function HomePage() {
-  const { user } = useAppContext();
-  const router = useRouter();
-
-  // Estado para almacenar la lista de juegos obtenida desde el backend (o fallback a LOCAL_GAMES)
-  const [games, setGames] = useState<Game[]>(LOCAL_GAMES);
-  // Estado para la categoría seleccionada.
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
-
-  useEffect(() => {
-    // Se intenta obtener los juegos desde el backend.
-    getGames()
-      .then((data: unknown) => {
-        setGames(data as Game[]);
-      })
-      .catch((err) => {
-        console.error("Error obteniendo los juegos desde el backend, usando datos locales:", err);
-        // Si falla la consulta, se usa LOCAL_GAMES como fallback.
-        setGames(LOCAL_GAMES);
-      });
-  }, []);
-
-  // Filtra los juegos según la categoría seleccionada.
   const filteredGames =
     selectedCategory && selectedCategory !== "All"
       ? games.filter((game) => game.category === selectedCategory)
       : games;
-
-  // Categorías disponibles (puedes derivarlas dinámicamente en el futuro)
   const categories = ["All", "Puzzle", "Memoria", "Reacción"];
 
-  // Función para redirigir a login si el usuario no está autenticado al hacer clic en "Jugar".
-  const handlePlay = (e: React.MouseEvent<HTMLAnchorElement>, link: string) => {
-    if (!user) {
-      e.preventDefault();
-      router.push("/login");
-    }
-  };
+  const { user } = useAppContext();
+  const router = useRouter();
+
+  // Si más adelante necesitas manejar la redirección o alguna funcionalidad extra,
+  // podrás implementarlo dentro de cada GameCard o en el propio GameCard.
 
   return (
     <div className="min-h-screen bg-purple-600 flex flex-col font-sans">
