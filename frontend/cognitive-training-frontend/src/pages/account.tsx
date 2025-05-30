@@ -1,8 +1,10 @@
+// src/pages/account.tsx
 import { useAppContext } from "../context/AppContext";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 
+// Interfaces para la data de progreso
 interface RecentActivity {
   game: string;
   date: string;
@@ -15,9 +17,31 @@ interface ProgressData {
   recentActivity: RecentActivity[];
 }
 
+/**
+ * Función para obtener datos de progreso dummy.
+ * En lugar de hacer una petición a un endpoint inexistente, retornamos datos fijos.
+ */
+async function getUserProgress(userId: string): Promise<ProgressData> {
+  // Simula un retardo en la respuesta (por ejemplo, 1 segundo)
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        gamesPlayed: 10,
+        bestScore: 150,
+        recentActivity: [
+          { game: "Memory", date: "2023-09-21", result: "Victory" },
+          { game: "Blackjack", date: "2023-09-20", result: "Defeat" },
+          { game: "Sliding Puzzle", date: "2023-09-19", result: "Victory" },
+        ],
+      });
+    }, 1000);
+  });
+}
+
 export default function Account() {
   const { user, authLoaded } = useAppContext();
   const router = useRouter();
+  // Estado para la data de progreso
   const [progressData, setProgressData] = useState<ProgressData | null>(null);
 
   useEffect(() => {
@@ -26,20 +50,17 @@ export default function Account() {
     }
   }, [authLoaded, user, router]);
 
-  // Simula la obtención de datos de progreso del usuario
+  // Una vez cargada la autenticación y si hay usuario, se obtiene la data de progreso dummy.
   useEffect(() => {
     if (authLoaded && user) {
-      setTimeout(() => {
-        setProgressData({
-          gamesPlayed: 15,
-          bestScore: user.score,
-          recentActivity: [
-            { game: "Memory", date: "2023-09-21", result: "Victoria" },
-            { game: "Blackjack", date: "2023-09-20", result: "Derrota" },
-            { game: "Sliding Puzzle", date: "2023-09-19", result: "Victoria" },
-          ],
+      getUserProgress(user.id.toString())
+        .then((data: ProgressData) => {
+          setProgressData(data);
+        })
+        .catch((error) => {
+          console.error("Error obteniendo el progreso del usuario:", error);
+          setProgressData(null);
         });
-      }, 1000);
     }
   }, [authLoaded, user]);
 
@@ -74,20 +95,19 @@ export default function Account() {
           {/* Información del usuario */}
           <div className="pt-20 pb-8 px-6 text-center">
             <h2 className="text-3xl font-bold text-white mb-4">Perfil de Usuario</h2>
-            
             <div className="space-y-3 text-lg text-white/90">
               <div className="flex justify-center items-center gap-2">
                 <span className="font-semibold">👤 Usuario:</span>
-                <span className="bg-white/10 px-3 py-1 rounded-full">{user.username}</span>
+                <span className="bg-white/10 px-3 py-1 rounded-full">
+                  {user.username}
+                </span>
               </div>
-              
               <div className="flex justify-center items-center gap-2">
                 <span className="font-semibold">🏆 Puntaje:</span>
                 <span className="bg-yellow-400/90 text-purple-900 px-3 py-1 rounded-full">
                   {user.score} puntos
                 </span>
               </div>
-              
               <div className="flex justify-center items-center gap-2">
                 <span className="font-semibold">🎯 Ruta de entrenamiento:</span>
                 <span className="bg-white/10 px-3 py-1 rounded-full">

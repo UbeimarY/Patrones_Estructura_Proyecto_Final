@@ -1,11 +1,7 @@
-/* src/styles/globals.css */
-
-/* Importa Tailwind CSS para tener acceso a todas sus utilidades */
 @import "tailwindcss";
 
-/* Configuración CSS‑first: define tokens de diseño */
 @theme {
-  --font-display: "Satoshi", sans-serif;
+  --font-display: "Satoshi", "sans-serif";
   --breakpoint-3xl: 1920px;
   --color-avocado-100: oklch(0.99 0 0);
   --color-avocado-200: oklch(0.98 0.04 113.22);
@@ -15,4 +11,39 @@
   --color-avocado-600: oklch(0.53 0.12 118.34);
   --ease-fluid: cubic-bezier(0.3, 0, 0, 1);
   --ease-snappy: cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* Efecto flip para las cartas */
+.flip-card {
+  perspective: 1000px;
+  cursor: pointer;
+}
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.7s ease;
+  transform-style: preserve-3d;
+}
+.flip-card-inner.flipped {
+  transform: rotateY(180deg);
+}
+.card-face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border: 2px solid rgba(255,255,255,0.2);
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.card-front {
+  background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+}
+.card-back {
+  background: linear-gradient(135deg, #a78bfa, #c084fc);
+  transform: rotateY(180deg);
 }

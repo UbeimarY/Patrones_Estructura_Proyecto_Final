@@ -2,7 +2,9 @@ import axios from 'axios';
 
 const API_BASE_URL = "http://localhost:8080";
 
+// ------------------------
 // Autenticación
+// ------------------------
 export const registerUser = async (user: { username: string; password: string; }) => {
   const response = await axios.post(`${API_BASE_URL}/api/auth/register`, user);
   return response.data;
@@ -13,7 +15,9 @@ export const loginUser = async (credentials: { username: string; password: strin
   return response.data;
 };
 
+// ------------------------
 // Juegos
+// ------------------------
 export const getGameByType = async (type: string) => {
   const response = await axios.get(`${API_BASE_URL}/api/games/${type}`);
   return response.data;
@@ -42,13 +46,22 @@ export const getMoveHistory = async (gameId: string) => {
 };
 
 export const submitScore = async (gameId: string, score: number) => {
-  const response = await axios.post(`${API_BASE_URL}/api/games/${gameId}/score`, score, {
-    headers: { "Content-Type": "text/plain" }
-  });
+  const response = await axios.post(
+    `${API_BASE_URL}/api/games/${gameId}/score`,
+    score,
+    { headers: { "Content-Type": "text/plain" } }
+  );
   return response.data;
 };
 
+export const getGames = async () => {
+  const response = await axios.get(`${API_BASE_URL}/api/games`);
+  return response.data;
+};
+
+// ------------------------
 // Usuarios
+// ------------------------
 export const getUsers = async () => {
   const response = await axios.get(`${API_BASE_URL}/api/users`);
   return response.data;
@@ -61,5 +74,13 @@ export const getUserById = async (userId: string) => {
 
 export const updateUser = async (userId: string, data: { score: number; trainingRoute: string; }) => {
   const response = await axios.patch(`${API_BASE_URL}/api/users/${userId}`, data);
+  return response.data;
+};
+
+// ------------------------
+// Progreso del Usuario
+// ------------------------
+export const getUserProgress = async (userId: string) => {
+  const response = await axios.get(`${API_BASE_URL}/api/progress/${userId}`);
   return response.data;
 };

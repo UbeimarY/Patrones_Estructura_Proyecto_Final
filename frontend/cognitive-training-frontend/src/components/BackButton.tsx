@@ -10,7 +10,7 @@ export default function BackButton() {
       className="fixed top-4 left-4 z-50 flex items-center justify-center w-10 h-10 rounded-full bg-white shadow hover:bg-gray-200"
       aria-label="Volver"
     >
-      {/* Usamos un SVG de flecha; puedes personalizarlo según tu diseño */}
+      {/* Usamos un SVG de flecha; este icono se puede personalizar */}
       <svg
         xmlns="http://www.w3.org/2000/svg"
         className="h-6 w-6 text-purple-600"

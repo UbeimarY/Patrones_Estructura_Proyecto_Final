@@ -1,33 +1,50 @@
 // src/pages/register.tsx
-import Navbar from '../components/Navbar';
-import { useState } from 'react';
-import { useRouter } from 'next/router';
-import { useAppContext } from '../context/AppContext';
+import Navbar from "../components/Navbar";
+import { useState } from "react";
+import { useRouter } from "next/router";
+import { useAppContext } from "../context/AppContext";
+import { registerUser } from "../utils/api";
+
+// Define la interfaz de la respuesta de registro
+interface RegisterUserResponse {
+  id: string; // Se recibe como string
+  username: string;
+  score: number;
+  avatar?: string;
+  trainingRoute?: string; // Puede ser undefined
+}
 
 export default function Register() {
   const { setUser } = useAppContext();
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(""); // Limpia errores previos
+    setLoading(true);
+    
     try {
-      const res = await fetch('http://localhost:8080/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
-      });
-      if (res.ok) {
-        const user = await res.json();
-        setUser(user);
-        router.push('/account');
-      } else {
-        setError('Error al registrarse');
-      }
+      // Realiza el registro utilizando la función centralizada registerUser.
+      const userResponse = (await registerUser({ username, password })) as RegisterUserResponse;
+
+      // Convierte el id a número si el contexto lo requiere y asigna valor por defecto a trainingRoute.
+      const userData = {
+        ...userResponse,
+        id: Number(userResponse.id),
+        trainingRoute: userResponse.trainingRoute || ""
+      };
+
+      setUser(userData);
+      router.push("/account");
     } catch (err) {
-      setError('Error al conectar con el servidor');
+      console.error("Error durante el registro:", err);
+      setError("Error al registrarse o al conectar con el servidor");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -58,9 +75,12 @@ export default function Register() {
           />
           <button
             type="submit"
-            className="w-full bg-white text-purple-600 font-bold text-xl py-3 px-8 rounded-full transition transform hover:scale-105 duration-300 hover:bg-gray-200"
+            disabled={loading}
+            className={`w-full bg-white text-purple-600 font-bold text-xl py-3 px-8 rounded-full transition transform ${
+              loading ? "opacity-50 cursor-not-allowed" : "hover:scale-105 duration-300 hover:bg-gray-200"
+            }`}
           >
-            REGISTRARSE
+            {loading ? "Registrando..." : "REGISTRARSE"}
           </button>
         </form>
       </main>

@@ -3,7 +3,17 @@ import Link from 'next/link';
 import { useAppContext } from '../context/AppContext';
 
 export default function Navbar() {
+  // Extraemos del contexto global el usuario logueado y la función logout.
+  // En el proceso de login (a través del backend) se actualiza este estado.
   const { user, logout } = useAppContext();
+
+  // Función de logout. Aquí podrás, si lo deseas, llamar a un endpoint del backend
+  // que invalide la sesión en el servidor; en este ejemplo se simplifica: se limpia el contexto.
+  const handleLogout = () => {
+    // Si cuentas con un endpoint para logout, podrías hacer:
+    // await axios.post(`${API_BASE_URL}/api/auth/logout`);
+    logout(); // Limpia el estado global del usuario.
+  };
 
   return (
     <header className="flex justify-between items-center p-4 bg-purple-600">
@@ -21,17 +31,17 @@ export default function Navbar() {
         </Link>
         {user ? (
           <>
-            {/* La imagen de perfil actúa como enlace a la cuenta */}
+            {/* Al loguearse, los datos del usuario se obtienen del backend y se almacenan en el contexto */}
             <Link href="/account">
               <img
-                src={user.avatar || '../images/avatar/default-avatar.png'}
+                // Se utiliza el avatar del usuario (o una imagen default)
+                src={user.avatar || '/images/avatar/default-avatar.png'}
                 alt="Perfil"
                 className="h-10 w-10 rounded-full border-2 border-white cursor-pointer"
               />
             </Link>
-            {/* Logout ahora se muestra como simple texto con hover underline */}
             <span
-              onClick={logout}
+              onClick={handleLogout}
               className="cursor-pointer text-white font-semibold hover:underline transition"
             >
               Cerrar Sesión

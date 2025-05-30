@@ -1,33 +1,44 @@
 // src/pages/login.tsx
-import Navbar from '../components/Navbar';
-import { useState } from 'react';
-import { useRouter } from 'next/router';
-import { useAppContext } from '../context/AppContext';
+import Navbar from "../components/Navbar";
+import { useState } from "react";
+import { useRouter } from "next/router";
+import { useAppContext } from "../context/AppContext";
+import { loginUser } from "../utils/api";
+
+// Definición de la respuesta del endpoint de login.
+interface LoginUserResponse {
+  id: string; // Se obtiene como string desde el backend
+  username: string;
+  score: number;
+  avatar?: string;
+  trainingRoute?: string; // Puede venir undefined
+}
 
 export default function Login() {
   const { setUser } = useAppContext();
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await fetch('http://localhost:8080/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
-      });
-      if (res.ok) {
-        const user = await res.json();
-        setUser(user);
-        router.push('/');
-      } else {
-        setError('Credenciales inválidas');
-      }
+      // Se realiza el login mediante la función loginUser.
+      const userResponse = (await loginUser({ username, password })) as LoginUserResponse;
+      
+      // Si trainingRoute es undefined, se le asigna una cadena vacía.
+      const userData = {
+        ...userResponse,
+        id: Number(userResponse.id), // Convertir el id a número según lo exige el contexto
+        trainingRoute: userResponse.trainingRoute || ""
+      };
+      
+      setUser(userData);
+      router.push("/");
     } catch (err) {
-      setError('Error al conectar con el servidor');
+      console.error(err);
+      setError("Credenciales inválidas o error al conectar con el servidor");
     }
   };
 

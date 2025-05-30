@@ -1,14 +1,16 @@
 // src/components/GameCard.tsx
 import Link from 'next/link';
 
+// Interfaz para mapear los datos que vendrán desde el backend (MongoDB)
+// Nota: asegúrate de que los campos del backend se mapeen correctamente a estos nombres.
 export interface Game {
   id: string;
-  title: string;
+  title: string;         // Podrías mapear "title" al atributo "name" del backend si así lo prefieres.
   description: string;
   image: string;
-  category: string;
+  category: string;      // Este valor puede corresponder al "type" o a una clasificación adicional.
   technologies: string[];
-  link: string;
+  link: string;          // URL a la que se dirigirá el jugador para iniciar la partida.
 }
 
 export interface GameCardProps {
@@ -46,6 +48,10 @@ export default function GameCard({ game }: GameCardProps) {
             </span>
           ))}
         </div>
+        {/* El link para "Jugar" puede dirigir a una página que inicie la partida.
+            Esa página, a su vez, debería consumir el endpoint del backend para registrar
+            la partida, registrar movimientos, etc., utilizando las estructuras de datos (MyStack, MyLinkedList, etc.).
+            Esto garantiza la integración real entre el frontend y el backend. */}
         <Link href={game.link} legacyBehavior>
           <a className="inline-block text-sm font-medium text-white hover:underline">
             Jugar →
