@@ -1,16 +1,65 @@
-// src/utils/api.ts
-export async function fetchGamesByType(type: string): Promise<any[]> {
-  const res = await fetch(`http://localhost:8080/api/games/${type}`);
-  if (!res.ok) {
-    throw new Error(`Error fetching games for type ${type}`);
-  }
-  
-  // Obtén la respuesta como texto para comprobar si está vacío
-  const text = await res.text();
-  if (!text) {
-    // Si no hay contenido, retornamos un arreglo vacío
-    return [];
-  }
-  
-  return JSON.parse(text);
-}
+import axios from 'axios';
+
+const API_BASE_URL = "http://localhost:8080";
+
+// Autenticación
+export const registerUser = async (user: { username: string; password: string; }) => {
+  const response = await axios.post(`${API_BASE_URL}/api/auth/register`, user);
+  return response.data;
+};
+
+export const loginUser = async (credentials: { username: string; password: string; }) => {
+  const response = await axios.post(`${API_BASE_URL}/api/auth/login`, credentials);
+  return response.data;
+};
+
+// Juegos
+export const getGameByType = async (type: string) => {
+  const response = await axios.get(`${API_BASE_URL}/api/games/${type}`);
+  return response.data;
+};
+
+export const getGameDetail = async (id: string) => {
+  const response = await axios.get(`${API_BASE_URL}/api/games/detail/${id}`);
+  return response.data;
+};
+
+export const addMove = async (gameId: string, move: string) => {
+  const response = await axios.post(`${API_BASE_URL}/api/games/${gameId}/move`, move, {
+    headers: { "Content-Type": "text/plain" }
+  });
+  return response.data;
+};
+
+export const undoMove = async (gameId: string) => {
+  const response = await axios.post(`${API_BASE_URL}/api/games/${gameId}/undo`);
+  return response.data;
+};
+
+export const getMoveHistory = async (gameId: string) => {
+  const response = await axios.get(`${API_BASE_URL}/api/games/${gameId}/history`);
+  return response.data;
+};
+
+export const submitScore = async (gameId: string, score: number) => {
+  const response = await axios.post(`${API_BASE_URL}/api/games/${gameId}/score`, score, {
+    headers: { "Content-Type": "text/plain" }
+  });
+  return response.data;
+};
+
+// Usuarios
+export const getUsers = async () => {
+  const response = await axios.get(`${API_BASE_URL}/api/users`);
+  return response.data;
+};
+
+export const getUserById = async (userId: string) => {
+  const response = await axios.get(`${API_BASE_URL}/api/users/${userId}`);
+  return response.data;
+};
+
+export const updateUser = async (userId: string, data: { score: number; trainingRoute: string; }) => {
+  const response = await axios.patch(`${API_BASE_URL}/api/users/${userId}`, data);
+  return response.data;
+};
