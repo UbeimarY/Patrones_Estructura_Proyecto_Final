@@ -6,7 +6,8 @@ import Navbar from "../../components/Navbar";
 import BackButton from "../../components/BackButton";
 
 type GameMode = '3x3' | '4x4' | '5x5';
-type Level = 1 | 2 | 3 | 4 | 5;
+type Level = 1 | 2 | 3 | 4 | 5 | 'Sin Fin';
+type GameType = 'normal' | 'endless';
 
 const modeConfig = {
   '3x3': { size: 3, movesMultiplier: 10 },
@@ -21,6 +22,7 @@ const generateSolvablePuzzle = (gridSize: number) => {
   let blankRow = 0;
   
   do {
+    // Fisher-Yates shuffle
     for (let i = numbers.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
@@ -50,18 +52,39 @@ export default function SlidingPuzzle() {
   const [board, setBoard] = useState<number[]>([]);
   const [selectedMode, setSelectedMode] = useState<GameMode | null>(null);
   const [selectedLevel, setSelectedLevel] = useState<Level | null>(null);
+  const [selectedGameType, setSelectedGameType] = useState<GameType | null>(null);
   const [gameStarted, setGameStarted] = useState(false);
   const [moves, setMoves] = useState(0);
-  const [moveLimit, setMoveLimit] = useState(0);
+  const [moveLimit, setMoveLimit] = useState<number | null>(null);
+  const [victoryPoints, setVictoryPoints] = useState(0);
 
+  // Efecto corregido: Manejo seguro de selectedLevel
   useEffect(() => {
-    if (selectedMode && selectedLevel) {
+    if (selectedMode && selectedGameType) {
       const gridSize = modeConfig[selectedMode].size;
       setBoard(generateSolvablePuzzle(gridSize));
-      setMoveLimit(selectedLevel * modeConfig[selectedMode].movesMultiplier);
       setMoves(0);
+      
+      if (selectedGameType === 'normal') {
+        // Verificar que selectedLevel es un número
+        if (selectedLevel !== null && typeof selectedLevel === 'number') {
+          const limit = selectedLevel * modeConfig[selectedMode].movesMultiplier;
+          setMoveLimit(limit);
+          setVictoryPoints(selectedLevel * 100);
+        } else {
+          // Valor por defecto si selectedLevel es null o 'Sin Fin'
+          const defaultLevel = 1;
+          const limit = defaultLevel * modeConfig[selectedMode].movesMultiplier;
+          setMoveLimit(limit);
+          setVictoryPoints(defaultLevel * 100);
+        }
+      } else {
+        // Modo sin fin
+        setMoveLimit(null);
+        setVictoryPoints(modeConfig[selectedMode].size * 50);
+      }
     }
-  }, [selectedMode, selectedLevel]);
+  }, [selectedMode, selectedLevel, selectedGameType]);
 
   useEffect(() => {
     if (authLoaded && !user) {
@@ -128,6 +151,14 @@ export default function SlidingPuzzle() {
     );
   };
 
+  const resetGame = () => {
+    if (selectedMode && selectedGameType) {
+      const gridSize = modeConfig[selectedMode].size;
+      setBoard(generateSolvablePuzzle(gridSize));
+      setMoves(0);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-700 to-blue-800">
@@ -149,28 +180,61 @@ export default function SlidingPuzzle() {
 
       <main className="flex-grow flex items-center justify-center p-4">
         {!gameStarted ? (
-          <div className="bg-white/10 backdrop-blur-lg p-8 rounded-2xl shadow-2xl space-y-8 border-2 border-white/20">
+          <div className="bg-white/10 backdrop-blur-lg p-8 rounded-2xl shadow-2xl space-y-8 border-2 border-white/20 max-w-4xl w-full">
             <div className="space-y-6">
               <h2 className="text-3xl font-bold text-center text-white drop-shadow-md">
-                ✨ Selecciona Modo
+                ⚙️ Selecciona Tipo de Juego
               </h2>
-              <div className="grid grid-cols-3 gap-6">
-                {(['3x3', '4x4', '5x5'] as GameMode[]).map(mode => (
-                  <button
-                    key={mode}
-                    onClick={() => setSelectedMode(mode)}
-                    className={`px-8 py-6 rounded-xl text-2xl font-semibold transition-all
-                      ${selectedMode === mode 
-                        ? 'bg-gradient-to-br from-purple-500 to-blue-500 text-white shadow-lg'
-                        : 'bg-white/20 hover:bg-white/30 text-white/80 hover:text-white'}`}
-                  >
-                    {mode}
-                  </button>
-                ))}
+              <div className="grid grid-cols-2 gap-6">
+                <button
+                  onClick={() => setSelectedGameType('normal')}
+                  className={`px-8 py-6 rounded-xl text-2xl font-semibold transition-all
+                    ${selectedGameType === 'normal' 
+                      ? 'bg-gradient-to-br from-purple-500 to-blue-500 text-white shadow-lg'
+                      : 'bg-white/20 hover:bg-white/30 text-white/80 hover:text-white'}`}
+                >
+                  Modo Normal
+                  <p className="text-base mt-2 font-normal">Con límite de movimientos</p>
+                </button>
+                <button
+                  onClick={() => setSelectedGameType('endless')}
+                  className={`px-8 py-6 rounded-xl text-2xl font-semibold transition-all
+                    ${selectedGameType === 'endless' 
+                      ? 'bg-gradient-to-br from-green-500 to-cyan-500 text-white shadow-lg'
+                      : 'bg-white/20 hover:bg-white/30 text-white/80 hover:text-white'}`}
+                >
+                  Modo Sin Fin
+                  <p className="text-base mt-2 font-normal">Sin límite de movimientos</p>
+                </button>
               </div>
             </div>
 
-            {selectedMode && (
+            {selectedGameType && (
+              <div className="space-y-6">
+                <h2 className="text-3xl font-bold text-center text-white drop-shadow-md">
+                  🧩 Elige Tamaño del Tablero
+                </h2>
+                <div className="grid grid-cols-3 gap-6">
+                  {(['3x3', '4x4', '5x5'] as GameMode[]).map(mode => (
+                    <button
+                      key={mode}
+                      onClick={() => setSelectedMode(mode)}
+                      className={`px-8 py-6 rounded-xl text-2xl font-semibold transition-all
+                        ${selectedMode === mode 
+                          ? 'bg-gradient-to-br from-purple-500 to-blue-500 text-white shadow-lg'
+                          : 'bg-white/20 hover:bg-white/30 text-white/80 hover:text-white'}`}
+                    >
+                      {mode}
+                      <p className="text-base mt-2 font-normal">
+                        {mode === '3x3' ? 'Fácil' : mode === '4x4' ? 'Medio' : 'Difícil'}
+                      </p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {selectedGameType === 'normal' && selectedMode && (
               <div className="space-y-6">
                 <h2 className="text-3xl font-bold text-center text-white drop-shadow-md">
                   🚀 Elige Nivel
@@ -192,7 +256,34 @@ export default function SlidingPuzzle() {
               </div>
             )}
 
-            {selectedMode && selectedLevel && (
+            {selectedGameType === 'endless' && selectedMode && (
+              <div className="space-y-6">
+                <h2 className="text-3xl font-bold text-center text-white drop-shadow-md">
+                  🌟 Modo Sin Fin
+                </h2>
+                <div className="bg-blue-500/20 p-4 rounded-xl text-center">
+                  <p className="text-xl text-white">
+                    ¡Sin límite de movimientos! Tómate tu tiempo para resolver el puzzle.
+                  </p>
+                  <p className="text-lg text-cyan-200 mt-2">
+                    Puntos por victoria: {victoryPoints}
+                  </p>
+                </div>
+                <div className="flex justify-center">
+                  <button
+                    onClick={() => setSelectedLevel('Sin Fin')}
+                    className={`px-8 py-4 rounded-xl text-xl font-semibold transition-all
+                      ${selectedLevel === 'Sin Fin' 
+                        ? 'bg-gradient-to-br from-green-500 to-cyan-500 text-white shadow-lg'
+                        : 'bg-white/20 hover:bg-white/30 text-white/80 hover:text-white'}`}
+                  >
+                    Seleccionar Modo Sin Fin
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {selectedMode && selectedGameType && (selectedGameType === 'endless' || selectedLevel) && (
               <button
                 onClick={() => setGameStarted(true)}
                 className="w-full bg-gradient-to-br from-green-400 to-cyan-500 text-white 
@@ -204,29 +295,61 @@ export default function SlidingPuzzle() {
             )}
           </div>
         ) : (
-          <div className="space-y-8">
+          <div className="space-y-8 w-full max-w-4xl">
             <div className="text-center text-white space-y-2">
               <p className="text-2xl font-semibold drop-shadow-md">
-                Movimientos: <span className="text-cyan-300">{moves}</span>/{moveLimit}
+                Movimientos: <span className="text-cyan-300">{moves}</span>
+                {moveLimit !== null && `/${moveLimit}`}
               </p>
               <p className="text-xl text-white/80">
-                Modo: {selectedMode} - Nivel: {selectedLevel}
+                {selectedGameType === 'endless' ? 'Modo Sin Fin' : `Nivel: ${selectedLevel}`} - Tamaño: {selectedMode}
               </p>
+              {selectedGameType === 'endless' && (
+                <p className="text-lg text-green-300">
+                  Puntos por victoria: {victoryPoints}
+                </p>
+              )}
             </div>
             
-            <div className={`grid gap-3 ${selectedMode === '3x3' ? 'grid-cols-3' :
-              selectedMode === '4x4' ? 'grid-cols-4' : 'grid-cols-5'} 
-              p-6 bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl border-2 border-white/20`}>
-              {board.map((tile, idx) => renderTile(tile, idx))}
+            <div className="flex justify-center">
+              <div className={`grid gap-3 ${selectedMode === '3x3' ? 'grid-cols-3' :
+                selectedMode === '4x4' ? 'grid-cols-4' : 'grid-cols-5'} 
+                p-6 bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl border-2 border-white/20`}>
+                {board.map((tile, idx) => renderTile(tile, idx))}
+              </div>
             </div>
 
-            {(checkVictory() || moves >= moveLimit) && (
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={resetGame}
+                className="bg-gradient-to-br from-purple-500 to-blue-500 text-white 
+                  px-8 py-3 text-xl rounded-xl hover:scale-105 transition-all 
+                  shadow-lg flex items-center gap-2"
+              >
+                🔄 Reiniciar Tablero
+              </button>
+              <button
+                onClick={() => {
+                  setGameStarted(false);
+                  setSelectedMode(null);
+                  setSelectedLevel(null);
+                  setSelectedGameType(null);
+                }}
+                className="bg-gradient-to-br from-gray-500 to-gray-700 text-white 
+                  px-8 py-3 text-xl rounded-xl hover:scale-105 transition-all 
+                  shadow-lg flex items-center gap-2"
+              >
+                🏠 Menú Principal
+              </button>
+            </div>
+
+            {(checkVictory() || (moveLimit !== null && moves >= moveLimit)) && (
               <div className="bg-white/10 backdrop-blur-lg p-8 rounded-2xl text-center 
-                border-2 border-white/20 shadow-2xl space-y-6">
+                border-2 border-white/20 shadow-2xl space-y-6 mt-6">
                 <h2 className="text-4xl font-bold flex items-center justify-center gap-3">
                   {checkVictory() ? (
                     <>
-                      🏆 ¡Victoria! <span className="text-green-400">+100 Puntos</span>
+                      🏆 ¡Victoria! <span className="text-green-400">+{victoryPoints} Puntos</span>
                     </>
                   ) : (
                     <>
@@ -249,13 +372,14 @@ export default function SlidingPuzzle() {
                       px-8 py-3 text-xl rounded-xl hover:scale-105 transition-all 
                       shadow-lg flex items-center gap-2"
                   >
-                    🔄 Reiniciar
+                    🔄 Jugar Otra Vez
                   </button>
                   <button
                     onClick={() => {
                       setGameStarted(false);
                       setSelectedMode(null);
                       setSelectedLevel(null);
+                      setSelectedGameType(null);
                     }}
                     className="bg-gradient-to-br from-gray-500 to-gray-700 text-white 
                       px-8 py-3 text-xl rounded-xl hover:scale-105 transition-all 
