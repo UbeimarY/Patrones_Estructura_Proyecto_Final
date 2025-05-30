@@ -15,26 +15,36 @@ interface LoginUserResponse {
 }
 
 export default function Login() {
+  // Se obtiene el método para actualizar el usuario desde el contexto
   const { setUser } = useAppContext();
+  
+  // Estados locales para los inputs, error y para gestionar la redirección
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  
   const router = useRouter();
 
+  // Manejador del envío del formulario
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault(); // Evita el refresh de la página
     try {
-      // Se realiza el login mediante la función loginUser.
+      // Realiza la llamada al endpoint de login mediante la función loginUser.
+      // El resultado se fuerza a ser del tipo LoginUserResponse.
       const userResponse = (await loginUser({ username, password })) as LoginUserResponse;
       
-      // Si trainingRoute es undefined, se le asigna una cadena vacía.
+      // Se construye el objeto de usuario a partir de la respuesta.
+      // Se convierte el id de string a number (según lo que requiere el contexto)
+      // y se asegura que trainingRoute tenga un valor (si es undefined, se asigna una cadena vacía).
       const userData = {
         ...userResponse,
-        id: Number(userResponse.id), // Convertir el id a número según lo exige el contexto
+        id: Number(userResponse.id),
         trainingRoute: userResponse.trainingRoute || ""
       };
       
+      // Se guarda el usuario en el contexto global.
       setUser(userData);
+      // Se redirige a la página principal ("/") una vez autenticado.
       router.push("/");
     } catch (err) {
       console.error(err);
