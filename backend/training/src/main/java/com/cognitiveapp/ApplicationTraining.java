@@ -4,7 +4,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
- Arranca Spring Boot y por defecto el patrón MVC.
+ * Punto de entrada de la aplicación.
  */
 @SpringBootApplication
 public class ApplicationTraining {

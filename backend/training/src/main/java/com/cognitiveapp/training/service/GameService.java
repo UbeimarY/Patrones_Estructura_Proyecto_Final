@@ -5,19 +5,21 @@ import com.cognitiveapp.training.repository.GameRepository;
 import com.cognitiveapp.training.datastructures.MyLinkedList;
 import com.cognitiveapp.training.datastructures.MyStack;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 
+/**
+ * Servicio para la lógica de los juegos.
+ */
 @Service
 public class GameService {
 
     private final GameRepository gameRepository;
-
+    
     public GameService(GameRepository gameRepository) {
         this.gameRepository = gameRepository;
     }
-
-    // Obtiene el primer juego cuyo tipo coincida.
+    
+    // Retorna un juego por su tipo (por ejemplo, "memory")
     public Game getGameByType(String type) {
         List<Game> games = gameRepository.findAll();
         for (Game g : games) {
@@ -28,34 +30,33 @@ public class GameService {
         return null;
     }
     
-    // Registra un movimiento para el juego identificado por gameId.
-    // Agrega el movimiento a la pila (para undo) y a la lista de historial.
-    public void addMove(Long gameId, String move) {
+    // Registra un movimiento en un juego
+    public void addMove(String gameId, String move) {
         Game game = gameRepository.findById(gameId).orElse(null);
         if (game != null) {
-            // Inicializa las estructuras si aún no están configuradas.
-            if (game.getMoveStack() == null) {
+            if (game.getMoveStack() == null)
                 game.setMoveStack(new MyStack<>());
-            }
-            if (game.getMoveHistory() == null) {
+            if (game.getMoveHistory() == null)
                 game.setMoveHistory(new MyLinkedList<>());
-            }
             game.getMoveStack().push(move);
             game.getMoveHistory().add(move);
+            gameRepository.save(game);
         }
     }
     
-    // Deshace el último movimiento usando la pila.
-    public String undoMove(Long gameId) {
+    // Deshace el último movimiento
+    public String undoMove(String gameId) {
         Game game = gameRepository.findById(gameId).orElse(null);
         if (game != null && game.getMoveStack() != null && !game.getMoveStack().isEmpty()) {
-            return game.getMoveStack().pop();
+            String undone = game.getMoveStack().pop();
+            gameRepository.save(game);
+            return undone;
         }
         return null;
     }
     
-    // (Opcional) Retorna el historial de movimientos como String.
-    public String getMoveHistory(Long gameId) {
+    // Obtiene el historial de movimientos
+    public String getMoveHistory(String gameId) {
         Game game = gameRepository.findById(gameId).orElse(null);
         if (game != null && game.getMoveHistory() != null) {
             StringBuilder sb = new StringBuilder();

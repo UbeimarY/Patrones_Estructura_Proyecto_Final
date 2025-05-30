@@ -8,8 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
-  Configuración de beans: se definen los beans para el servicio de usuario.
-  Se utiliza Proxy para agregar funcionalidades (logging) 
+ * Configuración de beans para la inyección de dependencias.
  */
 @Configuration
 public class ServiceConfig {
@@ -18,7 +17,7 @@ public class ServiceConfig {
     public UserServiceImpl realUserService(UserRepository userRepository) {
         return new UserServiceImpl(userRepository);
     }
-
+    
     @Bean
     public IUserService userService(UserServiceImpl realUserService) {
         return new UserServiceProxy(realUserService);

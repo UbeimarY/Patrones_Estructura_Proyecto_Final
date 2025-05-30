@@ -1,70 +1,70 @@
 package com.cognitiveapp.training.datastructures;
 
 /**
- * Implementación propia de una lista enlazada.
- * Se utiliza para almacenar el historial de jugadas.
+ * Implementación de una lista enlazada simple.
  */
 public class MyLinkedList<T> {
     private Node<T> head;
+    private Node<T> tail;
     private int size;
-
+    
     private static class Node<T> {
-        T value;
+        T data;
         Node<T> next;
-        Node(T value) { this.value = value; }
+        Node(T data) { this.data = data; }
     }
-
+    
     public MyLinkedList() {
         head = null;
+        tail = null;
         size = 0;
     }
-
-    public int size() {
-        return size;
-    }
-
-    // Agrega un elemento al final
-    public void add(T value) {
-        Node<T> newNode = new Node<>(value);
+    
+    public void add(T data) {
+        Node<T> newNode = new Node<>(data);
         if (head == null) {
             head = newNode;
+            tail = newNode;
         } else {
-            Node<T> curr = head;
-            while (curr.next != null) {
-                curr = curr.next;
-            }
-            curr.next = newNode;
+            tail.next = newNode;
+            tail = newNode;
         }
         size++;
     }
-
-    // Retorna el elemento en la posición especificada
+    
     public T get(int index) {
-        if (index < 0 || index >= size) throw new IndexOutOfBoundsException();
+        if (index < 0 || index >= size)
+            throw new IndexOutOfBoundsException("Índice fuera de límites");
         Node<T> current = head;
-        for (int i = 0; i < index; i++) {
-            current = current.next;
-        }
-        return current.value;
+        for (int i = 0; i < index; i++) current = current.next;
+        return current.data;
     }
-
-    // Elimina la primera ocurrencia del valor y retorna true si se elimina
-    public boolean remove(T value) {
-        if (head == null) return false;
-        if (head.value.equals(value)) {
+    
+    public boolean remove(T data) {
+        if (head == null)
+            return false;
+        if (head.data.equals(data)) {
             head = head.next;
+            if (head == null)
+                tail = null;
             size--;
             return true;
         }
         Node<T> current = head;
-        while (current.next != null && !current.next.value.equals(value)) {
+        while (current.next != null) {
+            if (current.next.data.equals(data)) {
+                current.next = current.next.next;
+                if (current.next == null)
+                    tail = current;
+                size--;
+                return true;
+            }
             current = current.next;
-        }
-        if (current.next != null) {
-            current.next = current.next.next;
-            size--;
-            return true;
         }
         return false;
+    }
+    
+    public int size() {
+        return size;
     }
 }
